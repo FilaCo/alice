@@ -1,0 +1,9 @@
+stages:
+  - build
+
+rust-latest:
+  stage: build
+  image: rust:1.87-slim-bullseye
+  script:
+    - cargo build --verbose
+    - cargo test --verbose

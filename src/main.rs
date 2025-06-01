@@ -1,3 +1,6 @@
+use alice::Cli;
+use clap::Parser;
+
 fn main() {
-    println!("Hello, world!");
+    let _ = Cli::parse();
 }
