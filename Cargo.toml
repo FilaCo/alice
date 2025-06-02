@@ -6,4 +6,8 @@ edition = "2024"
 [dependencies]
 anyhow = { version = "1" }
 clap = { version = "4", features = ["derive"] }
+rayon = { version = "1" }
 thiserror = { version = "2" }
+
+[dev-dependencies]
+criterion = { version = "0.6", features = ["html_reports"] }
