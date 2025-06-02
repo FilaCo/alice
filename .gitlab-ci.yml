@@ -6,25 +6,22 @@ stages:
 
 .rust:
   image: rust:1.87-slim-bullseye
-  variables:
-    LLVM_PROFILE_FILE: target/coverage/%p-%m.profraw
   before_script:
+    - apt-get update -y
     - rustup --version && rustc --version && cargo --version && echo $RUSTFLAGS && echo $CARGO_OPTS
 
 check:fmt:
   extends: .rust
   stage: check
-  before_script:
-    - rustup component add rustfmt
   script:
+    - rustup component add rustfmt
     - cargo fmt --check
 
 check:clippy:
   extends: .rust
   stage: check
-  before_script:
-    - rustup component add clippy
   script:
+    - rustup component add clippy
     - >
       cargo clippy
       --color always
@@ -39,10 +36,13 @@ build:
       - PROFILE: ["debug", "release"]
         TARGET:
           - x86_64-unknown-linux-gnu
-  before_script:
-    - rustup target add $TARGET
   script:
-    - '[[ $PROFILE == "debug" ]] && export RUSTFLAGS="$RUSTFLAGS -Cinstrument-coverage" || true'
+    - rustup target add $TARGET
+    - >
+      [[ $PROFILE == "debug" ]] && 
+      export RUSTFLAGS="$RUSTFLAGS -Cinstrument-coverage" && 
+      rustup component add llvm-tools || 
+      true
     - >
       cargo build
       --verbose
@@ -58,10 +58,11 @@ test:test:
   stage: test
   variables:
     RUSTFLAGS: -Cinstrument-coverage
-  before_script:
+    LLVM_PROFILE_FILE: target/coverage/%p-%m.profraw
+  script:
+    - apt-get install libxml2-utils -y
     - rustup component add llvm-tools
     - cargo install grcov
-  script:
     - >
       cargo test 
       --verbose
@@ -69,7 +70,6 @@ test:test:
       --target x86_64-unknown-linux-gnu
       --
       $CARGO_OPTS
-  after_script:
     - >
       grcov
       target/coverage
@@ -78,6 +78,10 @@ test:test:
       -o target/coverage
       --keep-only 'src/*'
       --output-type cobertura
+    - >
+      xmllint 
+      --xpath "concat('Coverage: ', 100 * number(//coverage/@line-rate), '%')" 
+      target/coverage/cobertura.xml
   coverage: '/Coverage: \d+(?:\.\d+)?/'
   artifacts:
     paths:
