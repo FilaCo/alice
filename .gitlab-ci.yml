@@ -8,9 +8,6 @@ stages:
   image: rust:1.87-slim-bullseye
   variables:
     LLVM_PROFILE_FILE: target/coverage/%p-%m.profraw
-  cache:
-    - key: $CI_COMMIT_REF
-      paths: [target/]
   before_script:
     - rustup --version && rustc --version && cargo --version && echo $RUSTFLAGS && echo $CARGO_OPTS
 
@@ -69,6 +66,7 @@ test:test:
       cargo test 
       --verbose
       --color always
+      --target x86_64-unknown-linux-gnu
       --
       $CARGO_OPTS
   after_script:
