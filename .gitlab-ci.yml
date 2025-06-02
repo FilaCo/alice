@@ -1,9 +1,101 @@
 stages:
+  - check
   - build
+  - test
+  - release
 
-rust-latest:
-  stage: build
+.rust:
   image: rust:1.87-slim-bullseye
+  variables:
+    LLVM_PROFILE_FILE: target/coverage/%p-%m.profraw
+  cache:
+    - key: $CI_COMMIT_REF
+      paths: [target/]
+  before_script:
+    - rustup --version && rustc --version && cargo --version && echo $RUSTFLAGS && echo $CARGO_OPTS
+
+check:fmt:
+  extends: .rust
+  stage: check
+  before_script:
+    - rustup component add rustfmt
   script:
-    - cargo build --verbose
-    - cargo test --verbose
+    - cargo fmt --check
+
+check:clippy:
+  extends: .rust
+  stage: check
+  before_script:
+    - rustup component add clippy
+  script:
+    - >
+      cargo clippy
+      --color always
+      --verbose
+      -- -Dwarnings
+
+build:
+  extends: .rust
+  stage: build
+  parallel:
+    matrix:
+      - PROFILE: ["debug", "release"]
+        TARGET:
+          - x86_64-unknown-linux-gnu
+  before_script:
+    - rustup target add $TARGET
+  script:
+    - '[[ $PROFILE == "debug" ]] && export RUSTFLAGS="$RUSTFLAGS -Cinstrument-coverage" || true'
+    - >
+      cargo build
+      --verbose
+      --color always
+      --target $TARGET
+      $([[ $PROFILE == 'release' ]] && echo '--release' || echo '')
+  artifacts:
+    paths:
+      - target/$TARGET/$PROFILE/*
+
+test:test:
+  extends: .rust
+  stage: test
+  variables:
+    RUSTFLAGS: -Cinstrument-coverage
+  before_script:
+    - rustup component add llvm-tools
+    - cargo install grcov
+  script:
+    - >
+      cargo test 
+      --verbose
+      --color always
+      --
+      $CARGO_OPTS
+  after_script:
+    - >
+      grcov
+      target/coverage
+      --binary-path target/x86_64-unknown-linux-gnu/debug
+      -s .
+      -o target/coverage
+      --keep-only 'src/*'
+      --output-type cobertura
+  coverage: '/Coverage: \d+(?:\.\d+)?/'
+  artifacts:
+    paths:
+      - target/coverage
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: target/coverage/cobertura.xml
+
+test:bench:
+  extends: .rust
+  stage: test
+  script:
+    - >
+      cargo bench 
+      --verbose
+      --color always
+      -- 
+      $CARGO_OPTS
