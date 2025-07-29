@@ -1,5 +1,5 @@
 [package]
-name = "alice"
+name = "ac"
 version = "0.1.0"
 edition = "2024"
 
@@ -10,4 +10,4 @@ rayon = { version = "1" }
 thiserror = { version = "2" }
 
 [dev-dependencies]
-criterion = { version = "0.6", features = ["html_reports"] }
+criterion = { version = "0.7", features = ["html_reports"] }

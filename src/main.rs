@@ -1,4 +1,4 @@
-use alice::Cli;
+use ac::prelude::Cli;
 use clap::Parser;
 
 fn main() {

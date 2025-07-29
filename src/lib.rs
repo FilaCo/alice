@@ -1,7 +1,8 @@
 #![allow(dead_code)]
 #![allow(unused)]
 
-mod cli;
-mod ecs;
+pub mod cli;
 
-pub use cli::*;
+pub mod prelude {
+    pub use super::cli::*;
+}
