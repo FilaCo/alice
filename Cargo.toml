@@ -5,8 +5,12 @@ edition = "2024"
 
 [dependencies]
 anyhow = { version = "1" }
+ariadne = { version = "0.5" }
+chumsky = { version = "0.10" }
 clap = { version = "4", features = ["derive"] }
+logos = { version = "0.15" }
 rayon = { version = "1" }
+salsa = { version = "0.23" }
 thiserror = { version = "2" }
 
 [dev-dependencies]
