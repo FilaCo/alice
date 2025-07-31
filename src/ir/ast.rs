@@ -2,7 +2,12 @@
 pub struct Ast<'db> {}
 
 #[derive(Debug)]
-pub enum Node {
+pub struct Node {
+    pub kind: NodeKind,
+}
+
+#[derive(Debug)]
+pub enum NodeKind {
     Decl,
     Expr,
 }

@@ -3,5 +3,5 @@ use clap::Parser;
 #[derive(Parser, Debug)]
 #[command(version, about)]
 pub struct Cli {
-    input: String,
+    pub input: String,
 }
