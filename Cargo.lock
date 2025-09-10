@@ -10,6 +10,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "ac_ast"
+version = "0.0.0"
+
+[[package]]
+name = "ac_cursor"
+version = "0.0.0"
+
+[[package]]
 name = "ac_db"
 version = "0.0.0"
 dependencies = [
@@ -21,15 +29,27 @@ name = "ac_driver"
 version = "0.0.0"
 
 [[package]]
+name = "ac_dsa"
+version = "0.0.0"
+
+[[package]]
 name = "ac_interface"
 version = "0.0.0"
 
 [[package]]
 name = "ac_lexer"
 version = "0.0.0"
+dependencies = [
+ "ac_cursor",
+ "ac_token",
+]
 
 [[package]]
 name = "ac_parser"
+version = "0.0.0"
+
+[[package]]
+name = "ac_span"
 version = "0.0.0"
 
 [[package]]
