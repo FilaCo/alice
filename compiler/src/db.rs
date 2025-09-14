@@ -7,3 +7,9 @@ pub struct AliceDb {
 pub use salsa::Database as AliceDbTrait;
 
 impl AliceDbTrait for AliceDb {}
+
+#[salsa::interned(debug)]
+pub struct Symbol<'db> {
+    #[returns(ref)]
+    pub value: String,
+}
