@@ -1,23 +1,22 @@
-use crate::{db::AliceDb, diag::Diagnostic, ir::SourceCode, query::compile};
+use std::collections::HashSet;
+
+use crate::{db::AliceDb, diagnostic::Diagnostic, ir::SourceCode, query::compile};
 use ariadne::{Report, ReportKind, Source};
-use clap::Parser;
 
 pub struct Alice {
-    args: Cli,
     db: AliceDb,
 }
 
-#[derive(Parser, Debug)]
-#[command(version, about)]
-struct Cli {
-    input: String,
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+enum EmitKind {
+    Tokens,
+    Ast,
 }
 
 impl Alice {
     pub fn new() -> Self {
-        let args = Cli::parse();
         let db = AliceDb::default();
-        Self { args, db }
+        Self { db }
     }
 
     pub fn compile(&self) {

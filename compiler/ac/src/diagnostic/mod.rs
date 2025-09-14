@@ -1,4 +1,7 @@
+mod span;
+
 use ariadne::{Report, ReportKind};
+pub use span::*;
 
 #[salsa::accumulator]
 #[derive(Debug)]

@@ -1,0 +1,8 @@
+[package]
+name = "ac"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+salsa = { workspace = true }
+unicode-xid = { workspace = true }

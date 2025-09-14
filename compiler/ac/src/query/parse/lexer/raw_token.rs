@@ -1,7 +1,7 @@
 #[derive(Debug)]
 pub struct RawToken {
-    kind: RawTokenKind,
-    len: usize,
+    pub kind: RawTokenKind,
+    pub len: usize,
 }
 
 #[derive(Debug)]

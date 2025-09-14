@@ -1,0 +1,12 @@
+[workspace]
+resolver = "3"
+members = ["compiler/*"]
+
+[workspace.dependencies]
+ac_db = { path = "compiler/ac_db" }
+ac_diagnostic = { path = "compiler/ac_diagnostic" }
+ac_lexer = { path = "compiler/ac_lexer" }
+ac_parser = { path = "compiler/ac_parser" }
+ac_token = { path = "compiler/ac_token" }
+salsa = { version = "0.23" }
+unicode-xid = { version = "0.2" }
