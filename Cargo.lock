@@ -6,8 +6,7 @@ version = 4
 name = "ac"
 version = "0.0.0"
 dependencies = [
- "salsa",
- "unicode-xid",
+ "ac_driver",
 ]
 
 [[package]]
@@ -24,6 +23,14 @@ dependencies = [
  "ac_db",
  "salsa",
 ]
+
+[[package]]
+name = "ac_driver"
+version = "0.0.0"
+
+[[package]]
+name = "ac_error_code"
+version = "0.0.0"
 
 [[package]]
 name = "ac_lexer"

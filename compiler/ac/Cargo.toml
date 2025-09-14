@@ -4,5 +4,6 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-salsa = { workspace = true }
-unicode-xid = { workspace = true }
+# tidy-alphabetical-start
+ac_driver = { workspace = true }
+# tidy-alphabetical-end

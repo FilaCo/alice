@@ -1,5 +1,3 @@
-// use ac::prelude::*;
-
 fn main() {
-    // Alice::default().compile()
+    ac_driver::main()
 }

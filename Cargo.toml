@@ -3,10 +3,13 @@ resolver = "3"
 members = ["compiler/*"]
 
 [workspace.dependencies]
+# tidy-alphabetical-start
 ac_db = { path = "compiler/ac_db" }
 ac_diagnostic = { path = "compiler/ac_diagnostic" }
+ac_driver = { path = "compiler/ac_driver" }
 ac_lexer = { path = "compiler/ac_lexer" }
 ac_parser = { path = "compiler/ac_parser" }
 ac_token = { path = "compiler/ac_token" }
 salsa = { version = "0.23" }
 unicode-xid = { version = "0.2" }
+# tidy-alphabetical-end

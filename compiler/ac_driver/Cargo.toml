@@ -1,10 +1,8 @@
 [package]
-name = "ac_diagnostic"
+name = "ac_driver"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 # tidy-alphabetical-start
-ac_db = { workspace = true }
-salsa = { workspace = true }
 # tidy-alphabetical-end
