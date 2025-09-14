@@ -7,6 +7,7 @@ members = ["compiler/*"]
 ac_db = { path = "compiler/ac_db" }
 ac_diagnostic = { path = "compiler/ac_diagnostic" }
 ac_driver = { path = "compiler/ac_driver" }
+ac_error_codes = { path = "compiler/ac_error_codes" }
 ac_lexer = { path = "compiler/ac_lexer" }
 ac_parser = { path = "compiler/ac_parser" }
 ac_token = { path = "compiler/ac_token" }

@@ -29,7 +29,7 @@ name = "ac_driver"
 version = "0.0.0"
 
 [[package]]
-name = "ac_error_code"
+name = "ac_error_codes"
 version = "0.0.0"
 
 [[package]]
