@@ -116,23 +116,10 @@ pub fn is_id_continue(c: char) -> bool {
 }
 
 pub fn is_whitespace(c: char) -> bool {
-    is_newline(c) || is_tab(c) || is_carriage_return(c) || is_space(c)
-}
-
-pub fn is_newline(c: char) -> bool {
-    c == NEW_LINE_CHAR
-}
-
-pub fn is_tab(c: char) -> bool {
-    c == TAB_CHAR
-}
-
-pub fn is_carriage_return(c: char) -> bool {
-    c == CARRIAGE_RETURN_CHAR
-}
-
-pub fn is_space(c: char) -> bool {
-    c == SPACE_CHAR
+    matches!(
+        c,
+        SPACE_CHAR | NEW_LINE_CHAR | TAB_CHAR | CARRIAGE_RETURN_CHAR
+    )
 }
 
 pub fn is_decimal_digit(c: char) -> bool {

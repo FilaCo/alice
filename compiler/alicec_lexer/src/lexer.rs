@@ -14,6 +14,7 @@ impl<'src> Lexer<'src> {
         Self { cursor }
     }
 
+    /// Creates an iterator that produces tokens from the input string.
     pub fn tokenize(input: &'src str) -> impl Iterator<Item = Token> {
         let mut lexer = Lexer::new(input);
         std::iter::from_fn(move || {
@@ -85,7 +86,7 @@ impl<'src> Lexer<'src> {
     fn line_comment(&mut self) -> TokenKind {
         self.cursor.bump();
 
-        self.cursor.bump_while(|c| !is_newline(c));
+        self.cursor.bump_while(|c| !matches!(c, NEW_LINE_CHAR));
         LineComment
     }
 
