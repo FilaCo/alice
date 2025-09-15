@@ -1,9 +1,8 @@
 [package]
-name = "ac_lexer"
+name = "alicec_driver"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 # tidy-alphabetical-start
-unicode-xid = { workspace = true }
 # tidy-alphabetical-end

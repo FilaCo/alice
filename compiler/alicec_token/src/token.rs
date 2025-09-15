@@ -1,4 +1,4 @@
-use ac_db::prelude::Symbol;
+use alicec_db::prelude::Symbol;
 
 pub struct Token<'db> {
     pub kind: TokenKind<'db>,

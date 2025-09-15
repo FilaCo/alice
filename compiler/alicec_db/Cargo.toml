@@ -1,8 +1,9 @@
 [package]
-name = "ac_driver"
+name = "alicec_db"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 # tidy-alphabetical-start
+salsa = { workspace = true }
 # tidy-alphabetical-end

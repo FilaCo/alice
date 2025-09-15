@@ -4,13 +4,13 @@ members = ["compiler/*"]
 
 [workspace.dependencies]
 # tidy-alphabetical-start
-ac_db = { path = "compiler/ac_db" }
-ac_diagnostic = { path = "compiler/ac_diagnostic" }
-ac_driver = { path = "compiler/ac_driver" }
-ac_error_codes = { path = "compiler/ac_error_codes" }
-ac_lexer = { path = "compiler/ac_lexer" }
-ac_parser = { path = "compiler/ac_parser" }
-ac_token = { path = "compiler/ac_token" }
+alicec_db = { path = "compiler/alicec_db" }
+alicec_driver = { path = "compiler/alicec_driver" }
+alicec_error_codes = { path = "compiler/alicec_error_codes" }
+alicec_lexer = { path = "compiler/alicec_lexer" }
+alicec_parser = { path = "compiler/alicec_parser" }
+alicec_session = { path = "compiler/alicec_session" }
+alicec_token = { path = "compiler/alicec_token" }
 salsa = { version = "0.23" }
 unicode-xid = { version = "0.2" }
 # tidy-alphabetical-end

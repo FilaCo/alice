@@ -3,57 +3,56 @@
 version = 4
 
 [[package]]
-name = "ac"
+name = "alicec"
 version = "0.0.0"
 dependencies = [
- "ac_driver",
+ "alicec_driver",
 ]
 
 [[package]]
-name = "ac_db"
+name = "alicec_db"
 version = "0.0.0"
 dependencies = [
  "salsa",
 ]
 
 [[package]]
-name = "ac_diagnostic"
-version = "0.0.0"
-dependencies = [
- "ac_db",
- "salsa",
-]
-
-[[package]]
-name = "ac_driver"
+name = "alicec_driver"
 version = "0.0.0"
 
 [[package]]
-name = "ac_error_codes"
+name = "alicec_error_codes"
 version = "0.0.0"
 
 [[package]]
-name = "ac_lexer"
+name = "alicec_errors"
+version = "0.0.0"
+
+[[package]]
+name = "alicec_lexer"
 version = "0.0.0"
 dependencies = [
  "unicode-xid",
 ]
 
 [[package]]
-name = "ac_parser"
+name = "alicec_parser"
 version = "0.0.0"
 dependencies = [
- "ac_db",
- "ac_diagnostic",
- "ac_lexer",
- "ac_token",
+ "alicec_db",
+ "alicec_lexer",
+ "alicec_token",
 ]
 
 [[package]]
-name = "ac_token"
+name = "alicec_session"
+version = "0.0.0"
+
+[[package]]
+name = "alicec_token"
 version = "0.0.0"
 dependencies = [
- "ac_db",
+ "alicec_db",
 ]
 
 [[package]]

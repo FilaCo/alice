@@ -1,9 +1,8 @@
-use ac_db::prelude::AliceDbTrait;
-use ac_diagnostic::prelude::Diagnostic;
-use ac_lexer::prelude::{
+use alicec_db::prelude::AliceDbTrait;
+use alicec_lexer::prelude::{
     BlockCommentTerminated, Lexer as RawTokenLexer, TokenKind as RawTokenKind,
 };
-use ac_token::prelude::{Token, TokenKind};
+use alicec_token::prelude::{Token, TokenKind};
 
 pub struct Lexer<'db> {
     db: &'db dyn AliceDbTrait,
@@ -35,9 +34,7 @@ impl<'db> Lexer<'db> {
                     continue;
                 }
                 RawTokenKind::BlockComment { is_terminated } => {
-                    if matches!(is_terminated, BlockCommentTerminated::No) {
-                        Diagnostic::unterminated_block_comment(self.db);
-                    }
+                    if matches!(is_terminated, BlockCommentTerminated::No) {}
 
                     preceded_by_whitespace = PreceededByWhitespace::Yes;
                     continue;

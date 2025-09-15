@@ -1,9 +1,9 @@
 [package]
-name = "ac_token"
+name = "alicec"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 # tidy-alphabetical-start
-ac_db = { workspace = true }
+alicec_driver = { workspace = true }
 # tidy-alphabetical-end

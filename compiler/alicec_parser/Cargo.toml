@@ -1,0 +1,11 @@
+[package]
+name = "alicec_parser"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+# tidy-alphabetical-start
+alicec_db = { workspace = true }
+alicec_lexer = { workspace = true }
+alicec_token = { workspace = true }
+# tidy-alphabetical-end

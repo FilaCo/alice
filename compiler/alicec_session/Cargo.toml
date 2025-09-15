@@ -1,9 +1,8 @@
 [package]
-name = "ac"
+name = "alicec_session"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 # tidy-alphabetical-start
-ac_driver = { workspace = true }
 # tidy-alphabetical-end
