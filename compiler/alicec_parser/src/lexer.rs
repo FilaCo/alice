@@ -47,6 +47,7 @@ impl<'db> Lexer<'db> {
                 RawTokenKind::Literal { kind, suffix_start } => todo!(),
                 RawTokenKind::Comma => todo!(),
                 RawTokenKind::Dot => todo!(),
+                RawTokenKind::Colon => todo!(),
                 RawTokenKind::Eq => todo!(),
                 RawTokenKind::Lt => todo!(),
                 RawTokenKind::Gt => todo!(),

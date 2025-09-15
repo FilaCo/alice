@@ -1,5 +1,8 @@
 use crate::{cursor::*, token::*};
 
+use LiteralKind::*;
+use TokenKind::*;
+
 #[derive(Debug)]
 pub struct Lexer<'src> {
     cursor: Cursor<'src>,
@@ -11,16 +14,24 @@ impl<'src> Lexer<'src> {
         Self { cursor }
     }
 
+    pub fn tokenize(input: &'src str) -> impl Iterator<Item = Token> {
+        let mut lexer = Lexer::new(input);
+        std::iter::from_fn(move || {
+            let token = lexer.cook();
+            if token.kind != Eof { Some(token) } else { None }
+        })
+    }
+
     pub fn cook(&mut self) -> Token {
         let Some(first_char) = self.cursor.bump() else {
-            return Token::eof();
+            return Token { kind: Eof, len: 0 };
         };
 
         let kind = match first_char {
-            SLASH_CHAR => match self.cursor.peek_first() {
+            SLASH_CHAR => match self.cursor.first() {
                 SLASH_CHAR => self.line_comment(),
                 STAR_CHAR => self.block_comment(),
-                _ => TokenKind::Slash,
+                _ => Slash,
             },
 
             c if is_whitespace(c) => self.whitespace(),
@@ -29,7 +40,7 @@ impl<'src> Lexer<'src> {
                 let literal_kind = self.number_literal(c);
                 let suffix_start = self.token_len();
                 self.eat_literal_suffix();
-                TokenKind::Literal {
+                Literal {
                     kind: literal_kind,
                     suffix_start,
                 }
@@ -41,28 +52,31 @@ impl<'src> Lexer<'src> {
                     self.eat_literal_suffix();
                 }
                 let kind = LiteralKind::String { is_terminated };
-                TokenKind::Literal { kind, suffix_start }
+                Literal { kind, suffix_start }
             }
 
-            COMMA_CHAR => TokenKind::Comma,
-            DOT_CHAR => TokenKind::Dot,
-            EQ_CHAR => TokenKind::Eq,
-            LT_CHAR => TokenKind::Lt,
-            GT_CHAR => TokenKind::Gt,
-            MINUS_CHAR => TokenKind::Minus,
-            PLUS_CHAR => TokenKind::Plus,
-            STAR_CHAR => TokenKind::Star,
-            OPEN_BRACE_CHAR => TokenKind::OpenBrace,
-            CLOSE_BRACE_CHAR => TokenKind::CloseBrace,
-            OPEN_BRACKET_CHAR => TokenKind::OpenBracket,
-            CLOSE_BRACKET_CHAR => TokenKind::CloseBracket,
-            OPEN_PAREN_CHAR => TokenKind::OpenParen,
-            CLOSE_PAREN_CHAR => TokenKind::CloseParen,
+            COMMA_CHAR => Comma,
+            DOT_CHAR => Dot,
+            EQ_CHAR => Eq,
+            LT_CHAR => Lt,
+            GT_CHAR => Gt,
+            MINUS_CHAR => Minus,
+            PLUS_CHAR => Plus,
+            STAR_CHAR => Star,
+            OPEN_BRACE_CHAR => OpenBrace,
+            CLOSE_BRACE_CHAR => CloseBrace,
+            OPEN_BRACKET_CHAR => OpenBracket,
+            CLOSE_BRACKET_CHAR => CloseBracket,
+            OPEN_PAREN_CHAR => OpenParen,
+            CLOSE_PAREN_CHAR => CloseParen,
 
-            _ => TokenKind::Unknown,
+            _ => Unknown,
         };
 
-        let res = Token::new(kind, self.token_len());
+        let res = Token {
+            kind,
+            len: self.token_len(),
+        };
         self.cursor.reset_len_remaining();
 
         res
@@ -72,7 +86,7 @@ impl<'src> Lexer<'src> {
         self.cursor.bump();
 
         self.cursor.bump_while(|c| !is_newline(c));
-        TokenKind::LineComment
+        LineComment
     }
 
     fn block_comment(&mut self) -> TokenKind {
@@ -82,12 +96,12 @@ impl<'src> Lexer<'src> {
         while let Some(c) = self.cursor.bump() {
             match c {
                 // `/*` branch
-                SLASH_CHAR if self.cursor.peek_first() == STAR_CHAR => {
+                SLASH_CHAR if self.cursor.first() == STAR_CHAR => {
                     self.cursor.bump();
                     open_cnt += 1;
                 }
                 // `*/` branch
-                STAR_CHAR if self.cursor.peek_first() == SLASH_CHAR => {
+                STAR_CHAR if self.cursor.first() == SLASH_CHAR => {
                     self.cursor.bump();
                     open_cnt -= 1;
 
@@ -99,7 +113,7 @@ impl<'src> Lexer<'src> {
             }
         }
 
-        TokenKind::BlockComment {
+        BlockComment {
             is_terminated: if open_cnt == 0 {
                 Terminated::Yes
             } else {
@@ -110,44 +124,43 @@ impl<'src> Lexer<'src> {
 
     fn whitespace(&mut self) -> TokenKind {
         self.cursor.bump_while(is_whitespace);
-        TokenKind::Whitespace
+        Whitespace
     }
 
     fn ident(&mut self) -> TokenKind {
-        self.cursor.bump();
         self.cursor.bump_while(is_id_continue);
-        TokenKind::Ident
+        Ident
     }
 
     fn number_literal(&mut self, first_digit: char) -> LiteralKind {
         let mut base = Base::Decimal;
 
         if first_digit == ZERO_DIGIT_CHAR {
-            match self.cursor.peek_first() {
+            match self.cursor.first() {
                 B_CHAR | CAPITAL_B_CHAR => {
                     base = Base::Binary;
                     self.cursor.bump();
                     let empty_int = self.eat_decimal_digits();
-                    return LiteralKind::Int { base, empty_int };
+                    return Int { base, empty_int };
                 }
                 O_CHAR | CAPITAL_O_CHAR => {
                     base = Base::Octal;
                     self.cursor.bump();
                     let empty_int = self.eat_decimal_digits();
-                    return LiteralKind::Int { base, empty_int };
+                    return Int { base, empty_int };
                 }
                 X_CHAR | CAPITAL_X_CHAR => {
                     base = Base::Hexadecimal;
                     self.cursor.bump();
                     let empty_int = self.eat_hexademical_digits();
-                    return LiteralKind::Int { base, empty_int };
+                    return Int { base, empty_int };
                 }
                 c if c == UNDERSCORE_CHAR || is_decimal_digit(c) => {
                     self.eat_decimal_digits();
                 }
                 E_CHAR | CAPITAL_E_CHAR => {}
                 _ => {
-                    return LiteralKind::Int {
+                    return Int {
                         base,
                         empty_int: Empty::No,
                     };
@@ -157,28 +170,34 @@ impl<'src> Lexer<'src> {
             self.eat_decimal_digits();
         }
 
-        match self.cursor.peek_first() {
-            DOT_CHAR if !is_id_start(self.cursor.peek_second()) => {
+        match self.cursor.first() {
+            DOT_CHAR if !is_id_start(self.cursor.second()) => {
                 self.cursor.bump();
-                let mut empty_exp = Empty::No;
-                if self.cursor.peek_first().is_ascii_digit() {
+                let mut empty_exponent = Empty::No;
+                if self.cursor.first().is_ascii_digit() {
                     self.eat_decimal_digits();
-                    match self.cursor.peek_first() {
+                    match self.cursor.first() {
                         E_CHAR | CAPITAL_E_CHAR => {
                             self.cursor.bump();
-                            empty_exp = self.eat_float_exponent();
+                            empty_exponent = self.eat_float_exponent();
                         }
                         _ => (),
                     }
                 }
-                LiteralKind::Float { base, empty_exp }
+                Float {
+                    base,
+                    empty_exponent,
+                }
             }
             E_CHAR | CAPITAL_E_CHAR => {
                 self.cursor.bump();
-                let empty_exp = self.eat_float_exponent();
-                LiteralKind::Float { base, empty_exp }
+                let empty_exponent = self.eat_float_exponent();
+                Float {
+                    base,
+                    empty_exponent,
+                }
             }
-            _ => LiteralKind::Int {
+            _ => Int {
                 base,
                 empty_int: Empty::No,
             },
@@ -190,10 +209,7 @@ impl<'src> Lexer<'src> {
             match c {
                 DOUBLE_QUOTE_CHAR => return Terminated::Yes,
                 BACK_SLASH_CHAR
-                    if matches!(
-                        self.cursor.peek_first(),
-                        DOUBLE_QUOTE_CHAR | BACK_SLASH_CHAR
-                    ) =>
+                    if matches!(self.cursor.first(), DOUBLE_QUOTE_CHAR | BACK_SLASH_CHAR) =>
                 {
                     self.cursor.bump();
                 }
@@ -209,7 +225,7 @@ impl<'src> Lexer<'src> {
     }
 
     fn eat_float_exponent(&mut self) -> Empty {
-        if matches!(self.cursor.peek_first(), MINUS_CHAR | PLUS_CHAR) {
+        if matches!(self.cursor.first(), MINUS_CHAR | PLUS_CHAR) {
             self.cursor.bump();
         }
         self.eat_decimal_digits()
@@ -218,7 +234,7 @@ impl<'src> Lexer<'src> {
     fn eat_decimal_digits(&mut self) -> Empty {
         let mut empty_int = Empty::Yes;
         loop {
-            match self.cursor.peek_first() {
+            match self.cursor.first() {
                 UNDERSCORE_CHAR => {
                     self.cursor.bump();
                 }
@@ -235,7 +251,7 @@ impl<'src> Lexer<'src> {
     fn eat_hexademical_digits(&mut self) -> Empty {
         let mut empty_int = Empty::Yes;
         loop {
-            match self.cursor.peek_first() {
+            match self.cursor.first() {
                 UNDERSCORE_CHAR => {
                     self.cursor.bump();
                 }
@@ -254,7 +270,7 @@ impl<'src> Lexer<'src> {
     }
 
     fn eat_identifier(&mut self) {
-        if !is_id_start(self.cursor.peek_first()) {
+        if !is_id_start(self.cursor.first()) {
             return;
         }
 

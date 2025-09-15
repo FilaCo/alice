@@ -7,3 +7,6 @@ edition = "2024"
 # tidy-alphabetical-start
 unicode-xid = { workspace = true }
 # tidy-alphabetical-end
+
+[dev-dependencies]
+expect-test = { version = "1" }

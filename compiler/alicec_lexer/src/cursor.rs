@@ -1,8 +1,13 @@
 use std::str::Chars;
 
+/// Peekable iterator over a char sequence.
+///
+/// Next characters can be peeked via `first` method,
+/// and position can be shifted forward via `bump` method.
 #[derive(Debug)]
 pub struct Cursor<'src> {
     len_remaining: usize,
+    /// Iterator over chars. Slightly faster than a &str.
     chars: Chars<'src>,
 }
 
@@ -14,34 +19,46 @@ impl<'src> Cursor<'src> {
         }
     }
 
+    /// Moves to the next character.
     pub fn bump(&mut self) -> Option<char> {
         self.chars.next()
     }
 
+    /// Bumps symbols while predicate returns true or until the end of file is reached.
     pub fn bump_while(&mut self, predicate: impl Fn(char) -> bool) {
-        while predicate(self.peek_first()) && !self.is_eof() {
+        while predicate(self.first()) && !self.is_eof() {
             self.bump();
         }
     }
 
-    pub fn peek_first(&self) -> char {
+    /// Peeks the next symbol from the input stream without consuming it.
+    /// If requested position doesn't exist, `EOF_CHAR` is returned.
+    /// However, getting `EOF_CHAR` doesn't always mean actual end of file,
+    /// it should be checked with `is_eof` method.
+    pub fn first(&self) -> char {
+        // `.next()` optimizes better than `.nth(0)`
         self.chars.clone().next().unwrap_or(EOF_CHAR)
     }
 
-    pub fn peek_second(&self) -> char {
+    /// Peeks the second symbol from the input stream without consuming it.
+    pub fn second(&self) -> char {
+        // `.next()` optimizes better than `.nth(1)`
         let mut iter = self.chars.clone();
         iter.next();
         iter.next().unwrap_or(EOF_CHAR)
     }
 
+    /// Returns amount of already bumped symbols.
     pub fn bumped_len(&self) -> usize {
         self.len_remaining - self.chars.as_str().len()
     }
 
+    /// Resets the number of bytes consumed to 0.
     pub fn reset_len_remaining(&mut self) {
         self.len_remaining = self.chars.as_str().len();
     }
 
+    /// Checks if there is nothing more to consume.
     fn is_eof(&self) -> bool {
         self.chars.as_str().is_empty()
     }
@@ -89,10 +106,6 @@ pub const CARRIAGE_RETURN_CHAR: char = '\r';
 pub const SPACE_CHAR: char = ' ';
 
 pub const EOF_CHAR: char = '\0';
-
-pub fn is_double_quote(c: char) -> bool {
-    c == DOUBLE_QUOTE_CHAR
-}
 
 pub fn is_id_start(c: char) -> bool {
     c == UNDERSCORE_CHAR || unicode_xid::UnicodeXID::is_xid_start(c)
