@@ -1,22 +1,10 @@
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Token {
     pub kind: TokenKind,
     pub len: usize,
 }
 
-#[derive(Debug)]
-pub enum BlockCommentTerminated {
-    No,
-    Yes,
-}
-
-#[derive(Debug)]
-pub enum StringLiteralTerminated {
-    No,
-    Yes,
-}
-
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TokenKind {
     /// A line comment, e.g. `// comment`.
     LineComment,
@@ -24,9 +12,7 @@ pub enum TokenKind {
     ///
     /// Block comments can be recursive, so a sequence like `/* /* */`
     /// will not be considered terminated and will result in a parsing error.
-    BlockComment {
-        is_terminated: BlockCommentTerminated,
-    },
+    BlockComment { is_terminated: Terminated },
 
     /// Any whitespace character sequence.
     Whitespace,
@@ -35,7 +21,10 @@ pub enum TokenKind {
     Ident,
 
     /// Literals.
-    Literal { kind: LiteralKind },
+    Literal {
+        kind: LiteralKind,
+        suffix_start: usize,
+    },
 
     /// `,`
     Comma,
@@ -85,9 +74,62 @@ impl Token {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Terminated {
+    No,
+    Yes,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Empty {
+    No,
+    Yes,
+}
+
+/// Enum representing the literal types supported by the lexer.
+///
+/// Note that the suffix is *not* considered when deciding the `LiteralKind` in
+/// this type. This means that float literals like `1f32` are classified by this
+/// type as `Int`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum LiteralKind {
-    String {
-        is_terminated: StringLiteralTerminated,
-    },
+    String { is_terminated: Terminated },
+    Int { base: Base, empty_int: Empty },
+    Float { base: Base, empty_exp: Empty },
+}
+
+/// Base of numeric literal encoding according to its prefix.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Base {
+    /// Literal starts with "0b" or "0B".
+    Binary = 2,
+    /// Literal starts with "0o" or "0O".
+    Octal = 8,
+    /// Literal doesn't contain a prefix.
+    Decimal = 10,
+    /// Literal starts with "0x" or "0X".
+    Hexadecimal = 16,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn token_eof() {
+        // arrange
+        // act
+        let actual = Token::eof();
+
+        // assert
+        assert_eq!(TokenKind::Eof, actual.kind);
+        assert_eq!(0, actual.len)
+    }
+
+    #[test]
+    fn token_new() {
+        // arrange
+        // act
+        // assert
+    }
 }

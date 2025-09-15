@@ -1,8 +1,10 @@
 [package]
-name = "alicec_error_codes"
+name = "alicec_interface"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 # tidy-alphabetical-start
+alicec_db = { workspace = true }
+tracing = { workspace = true }
 # tidy-alphabetical-end

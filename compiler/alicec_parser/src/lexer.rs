@@ -1,7 +1,5 @@
 use alicec_db::prelude::AliceDbTrait;
-use alicec_lexer::prelude::{
-    BlockCommentTerminated, Lexer as RawTokenLexer, TokenKind as RawTokenKind,
-};
+use alicec_lexer::prelude::{Lexer as RawTokenLexer, Terminated, TokenKind as RawTokenKind};
 use alicec_token::prelude::{Token, TokenKind};
 
 pub struct Lexer<'db> {
@@ -34,7 +32,9 @@ impl<'db> Lexer<'db> {
                     continue;
                 }
                 RawTokenKind::BlockComment { is_terminated } => {
-                    if matches!(is_terminated, BlockCommentTerminated::No) {}
+                    if matches!(is_terminated, Terminated::No) {
+                        todo!()
+                    }
 
                     preceded_by_whitespace = PreceededByWhitespace::Yes;
                     continue;
@@ -44,7 +44,7 @@ impl<'db> Lexer<'db> {
                     continue;
                 }
                 RawTokenKind::Ident => todo!(),
-                RawTokenKind::Literal { kind } => todo!(),
+                RawTokenKind::Literal { kind, suffix_start } => todo!(),
                 RawTokenKind::Comma => todo!(),
                 RawTokenKind::Dot => todo!(),
                 RawTokenKind::Eq => todo!(),

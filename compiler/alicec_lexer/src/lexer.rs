@@ -24,10 +24,25 @@ impl<'src> Lexer<'src> {
             },
 
             c if is_whitespace(c) => self.whitespace(),
-
             c if is_id_start(c) => self.ident(),
-
-            DOUBLE_QUOTE_CHAR => self.string_literal(),
+            c if is_decimal_digit(c) => {
+                let literal_kind = self.number_literal(c);
+                let suffix_start = self.token_len();
+                self.eat_literal_suffix();
+                TokenKind::Literal {
+                    kind: literal_kind,
+                    suffix_start,
+                }
+            }
+            DOUBLE_QUOTE_CHAR => {
+                let is_terminated = self.string_literal();
+                let suffix_start = self.token_len();
+                if matches!(is_terminated, Terminated::Yes) {
+                    self.eat_literal_suffix();
+                }
+                let kind = LiteralKind::String { is_terminated };
+                TokenKind::Literal { kind, suffix_start }
+            }
 
             COMMA_CHAR => TokenKind::Comma,
             DOT_CHAR => TokenKind::Dot,
@@ -86,9 +101,9 @@ impl<'src> Lexer<'src> {
 
         TokenKind::BlockComment {
             is_terminated: if open_cnt == 0 {
-                BlockCommentTerminated::Yes
+                Terminated::Yes
             } else {
-                BlockCommentTerminated::No
+                Terminated::No
             },
         }
     }
@@ -104,24 +119,147 @@ impl<'src> Lexer<'src> {
         TokenKind::Ident
     }
 
-    fn string_literal(&mut self) -> TokenKind {
-        self.cursor.bump();
-        self.cursor
-            .bump_while(|c| !is_newline(c) && !is_double_quote(c));
+    fn number_literal(&mut self, first_digit: char) -> LiteralKind {
+        let mut base = Base::Decimal;
 
-        let is_terminated = if is_double_quote(self.cursor.peek_first()) {
-            self.cursor.bump();
-            StringLiteralTerminated::Yes
+        if first_digit == ZERO_DIGIT_CHAR {
+            match self.cursor.peek_first() {
+                B_CHAR | CAPITAL_B_CHAR => {
+                    base = Base::Binary;
+                    self.cursor.bump();
+                    let empty_int = self.eat_decimal_digits();
+                    return LiteralKind::Int { base, empty_int };
+                }
+                O_CHAR | CAPITAL_O_CHAR => {
+                    base = Base::Octal;
+                    self.cursor.bump();
+                    let empty_int = self.eat_decimal_digits();
+                    return LiteralKind::Int { base, empty_int };
+                }
+                X_CHAR | CAPITAL_X_CHAR => {
+                    base = Base::Hexadecimal;
+                    self.cursor.bump();
+                    let empty_int = self.eat_hexademical_digits();
+                    return LiteralKind::Int { base, empty_int };
+                }
+                c if c == UNDERSCORE_CHAR || is_decimal_digit(c) => {
+                    self.eat_decimal_digits();
+                }
+                E_CHAR | CAPITAL_E_CHAR => {}
+                _ => {
+                    return LiteralKind::Int {
+                        base,
+                        empty_int: Empty::No,
+                    };
+                }
+            }
         } else {
-            StringLiteralTerminated::No
-        };
-
-        TokenKind::Literal {
-            kind: LiteralKind::String { is_terminated },
+            self.eat_decimal_digits();
         }
+
+        match self.cursor.peek_first() {
+            DOT_CHAR if !is_id_start(self.cursor.peek_second()) => {
+                self.cursor.bump();
+                let mut empty_exp = Empty::No;
+                if self.cursor.peek_first().is_ascii_digit() {
+                    self.eat_decimal_digits();
+                    match self.cursor.peek_first() {
+                        E_CHAR | CAPITAL_E_CHAR => {
+                            self.cursor.bump();
+                            empty_exp = self.eat_float_exponent();
+                        }
+                        _ => (),
+                    }
+                }
+                LiteralKind::Float { base, empty_exp }
+            }
+            E_CHAR | CAPITAL_E_CHAR => {
+                self.cursor.bump();
+                let empty_exp = self.eat_float_exponent();
+                LiteralKind::Float { base, empty_exp }
+            }
+            _ => LiteralKind::Int {
+                base,
+                empty_int: Empty::No,
+            },
+        }
+    }
+
+    fn string_literal(&mut self) -> Terminated {
+        while let Some(c) = self.cursor.bump() {
+            match c {
+                DOUBLE_QUOTE_CHAR => return Terminated::Yes,
+                BACK_SLASH_CHAR
+                    if matches!(
+                        self.cursor.peek_first(),
+                        DOUBLE_QUOTE_CHAR | BACK_SLASH_CHAR
+                    ) =>
+                {
+                    self.cursor.bump();
+                }
+                NEW_LINE_CHAR => return Terminated::No,
+                _ => (),
+            }
+        }
+        Terminated::No
     }
 
     fn token_len(&self) -> usize {
         self.cursor.bumped_len()
+    }
+
+    fn eat_float_exponent(&mut self) -> Empty {
+        if matches!(self.cursor.peek_first(), MINUS_CHAR | PLUS_CHAR) {
+            self.cursor.bump();
+        }
+        self.eat_decimal_digits()
+    }
+
+    fn eat_decimal_digits(&mut self) -> Empty {
+        let mut empty_int = Empty::Yes;
+        loop {
+            match self.cursor.peek_first() {
+                UNDERSCORE_CHAR => {
+                    self.cursor.bump();
+                }
+                c if is_decimal_digit(c) => {
+                    empty_int = Empty::No;
+                    self.cursor.bump();
+                }
+                _ => break,
+            }
+        }
+        empty_int
+    }
+
+    fn eat_hexademical_digits(&mut self) -> Empty {
+        let mut empty_int = Empty::Yes;
+        loop {
+            match self.cursor.peek_first() {
+                UNDERSCORE_CHAR => {
+                    self.cursor.bump();
+                }
+                c if is_hexademical_digit(c) => {
+                    empty_int = Empty::No;
+                    self.cursor.bump();
+                }
+                _ => break,
+            }
+        }
+        empty_int
+    }
+
+    fn eat_literal_suffix(&mut self) {
+        self.eat_identifier();
+    }
+
+    fn eat_identifier(&mut self) {
+        if !is_id_start(self.cursor.peek_first()) {
+            return;
+        }
+
+        self.cursor.bump();
+
+        self.cursor.bump_while(is_id_continue);
     }
 }

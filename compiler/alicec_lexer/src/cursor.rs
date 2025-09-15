@@ -63,8 +63,26 @@ pub const CLOSE_BRACKET_CHAR: char = ']';
 pub const OPEN_PAREN_CHAR: char = '(';
 pub const CLOSE_PAREN_CHAR: char = ')';
 
+pub const UNDERSCORE_CHAR: char = '_';
+
+pub const ZERO_DIGIT_CHAR: char = '0';
+pub const NINE_DIGIT_CHAR: char = '9';
+pub const A_CHAR: char = 'a';
+pub const Z_CHAR: char = 'z';
+pub const CAPITAL_A_CHAR: char = 'A';
+pub const CAPITAL_Z_CHAR: char = 'Z';
+pub const B_CHAR: char = 'b';
+pub const CAPITAL_B_CHAR: char = 'B';
+pub const O_CHAR: char = 'o';
+pub const CAPITAL_O_CHAR: char = 'O';
+pub const X_CHAR: char = 'x';
+pub const CAPITAL_X_CHAR: char = 'X';
+pub const E_CHAR: char = 'e';
+pub const CAPITAL_E_CHAR: char = 'E';
+
 pub const DOUBLE_QUOTE_CHAR: char = '"';
 
+pub const BACK_SLASH_CHAR: char = '\\';
 pub const NEW_LINE_CHAR: char = '\n';
 pub const TAB_CHAR: char = '\t';
 pub const CARRIAGE_RETURN_CHAR: char = '\r';
@@ -77,7 +95,7 @@ pub fn is_double_quote(c: char) -> bool {
 }
 
 pub fn is_id_start(c: char) -> bool {
-    c == '_' || unicode_xid::UnicodeXID::is_xid_start(c)
+    c == UNDERSCORE_CHAR || unicode_xid::UnicodeXID::is_xid_start(c)
 }
 
 pub fn is_id_continue(c: char) -> bool {
@@ -102,4 +120,14 @@ pub fn is_carriage_return(c: char) -> bool {
 
 pub fn is_space(c: char) -> bool {
     c == SPACE_CHAR
+}
+
+pub fn is_decimal_digit(c: char) -> bool {
+    (ZERO_DIGIT_CHAR..=NINE_DIGIT_CHAR).contains(&c)
+}
+
+pub fn is_hexademical_digit(c: char) -> bool {
+    is_decimal_digit(c)
+        || (A_CHAR..=Z_CHAR).contains(&c)
+        || (CAPITAL_A_CHAR..=CAPITAL_Z_CHAR).contains(&c)
 }
