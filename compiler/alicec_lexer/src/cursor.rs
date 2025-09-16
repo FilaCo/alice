@@ -64,15 +64,24 @@ impl<'src> Cursor<'src> {
     }
 }
 
+pub const SEMI_CHAR: char = ';';
 pub const COMMA_CHAR: char = ',';
 pub const DOT_CHAR: char = '.';
+pub const COLON_CHAR: char = ':';
+pub const TILDE_CHAR: char = '~';
+pub const QUESTION_CHAR: char = '?';
 pub const EQ_CHAR: char = '=';
+pub const EX_CHAR: char = '!';
 pub const LT_CHAR: char = '<';
 pub const GT_CHAR: char = '>';
 pub const MINUS_CHAR: char = '-';
+pub const AMPERSAND_CHAR: char = '&';
+pub const PIPE_CHAR: char = '|';
 pub const PLUS_CHAR: char = '+';
 pub const SLASH_CHAR: char = '/';
 pub const STAR_CHAR: char = '*';
+pub const PERCENT_CHAR: char = '%';
+
 pub const OPEN_BRACE_CHAR: char = '{';
 pub const CLOSE_BRACE_CHAR: char = '}';
 pub const OPEN_BRACKET_CHAR: char = '[';

@@ -1,14 +1,14 @@
 /// Parsed token.
 /// It doesn't contain information about data that has been parsed,
 /// only the type of the token and its size.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Token {
     pub kind: TokenKind,
     pub len: usize,
 }
 
 /// Enum representing common lexeme types.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TokenKind {
     /// A line comment, e.g. `// comment`.
     LineComment,
@@ -34,26 +34,41 @@ pub enum TokenKind {
         suffix_start: usize,
     },
 
+    /// `;`
+    Semi,
     /// `,`
     Comma,
     /// `.`
     Dot,
     /// `:`
     Colon,
+    /// `~`
+    Tilde,
+    /// `?`
+    Quest,
     /// `=`
     Eq,
+    /// `!`
+    Ex,
     /// `<`
     Lt,
     /// `>`
     Gt,
     /// `-`
     Minus,
+    /// `&`
+    Amp,
+    /// `|`
+    Pipe,
     /// `+`
     Plus,
     /// `/`
     Slash,
     /// `*`
     Star,
+    /// `%`
+    Percent,
+
     /// `{`
     OpenBrace,
     /// `}`
@@ -93,7 +108,7 @@ pub enum Empty {
 /// Note that the suffix is *not* considered when deciding the `LiteralKind` in
 /// this type. This means that float literals like `1f32` are classified by this
 /// type as `Int`.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum LiteralKind {
     /// `"abc"`, `"abc`
     String { is_terminated: Terminated },

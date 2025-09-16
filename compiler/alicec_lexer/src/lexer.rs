@@ -56,14 +56,22 @@ impl<'src> Lexer<'src> {
                 Literal { kind, suffix_start }
             }
 
+            SEMI_CHAR => Semi,
             COMMA_CHAR => Comma,
             DOT_CHAR => Dot,
+            COLON_CHAR => Colon,
+            TILDE_CHAR => Tilde,
+            QUESTION_CHAR => Quest,
+            EX_CHAR => Ex,
             EQ_CHAR => Eq,
             LT_CHAR => Lt,
             GT_CHAR => Gt,
             MINUS_CHAR => Minus,
+            AMPERSAND_CHAR => Amp,
+            PIPE_CHAR => Pipe,
             PLUS_CHAR => Plus,
             STAR_CHAR => Star,
+            PERCENT_CHAR => Percent,
             OPEN_BRACE_CHAR => OpenBrace,
             CLOSE_BRACE_CHAR => CloseBrace,
             OPEN_BRACKET_CHAR => OpenBracket,

@@ -1,6 +1,6 @@
 use alicec_db::prelude::AliceDbTrait;
 use alicec_lexer::prelude::{Lexer as RawTokenLexer, Terminated, TokenKind as RawTokenKind};
-use alicec_token::prelude::{Token, TokenKind};
+use alicec_token::prelude::Token;
 
 pub struct Lexer<'db> {
     db: &'db dyn AliceDbTrait,
@@ -19,54 +19,7 @@ impl<'db> Lexer<'db> {
     }
 
     pub fn cook(&mut self) -> Token<'db> {
-        let mut preceded_by_whitespace = PreceededByWhitespace::No;
-
-        loop {
-            let raw_token = self.raw_token_lexer.cook();
-            let start = self.pos;
-            self.pos = raw_token.len;
-
-            let kind = match raw_token.kind {
-                RawTokenKind::LineComment => {
-                    preceded_by_whitespace = PreceededByWhitespace::Yes;
-                    continue;
-                }
-                RawTokenKind::BlockComment { is_terminated } => {
-                    if matches!(is_terminated, Terminated::No) {
-                        todo!()
-                    }
-
-                    preceded_by_whitespace = PreceededByWhitespace::Yes;
-                    continue;
-                }
-                RawTokenKind::Whitespace => {
-                    preceded_by_whitespace = PreceededByWhitespace::Yes;
-                    continue;
-                }
-                RawTokenKind::Ident => todo!(),
-                RawTokenKind::Literal { kind, suffix_start } => todo!(),
-                RawTokenKind::Comma => todo!(),
-                RawTokenKind::Dot => todo!(),
-                RawTokenKind::Colon => todo!(),
-                RawTokenKind::Eq => todo!(),
-                RawTokenKind::Lt => todo!(),
-                RawTokenKind::Gt => todo!(),
-                RawTokenKind::Minus => todo!(),
-                RawTokenKind::Plus => todo!(),
-                RawTokenKind::Slash => todo!(),
-                RawTokenKind::Star => todo!(),
-                RawTokenKind::OpenBrace => TokenKind::OpenBrace,
-                RawTokenKind::CloseBrace => TokenKind::CloseBrace,
-                RawTokenKind::OpenBracket => TokenKind::OpenBracket,
-                RawTokenKind::CloseBracket => TokenKind::CloseBracket,
-                RawTokenKind::OpenParen => TokenKind::OpenParen,
-                RawTokenKind::CloseParen => TokenKind::CloseParen,
-                RawTokenKind::Unknown => todo!(),
-                RawTokenKind::Eof => TokenKind::Eof,
-            };
-
-            return Token::new(kind);
-        }
+        todo!()
     }
 }
 

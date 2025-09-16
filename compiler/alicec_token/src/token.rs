@@ -1,11 +1,43 @@
 use alicec_db::prelude::Symbol;
 
-pub struct Token<'db> {
-    pub kind: TokenKind<'db>,
-}
-
-pub enum TokenKind<'db> {
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Token<'db> {
     Ident(Symbol<'db>),
+
+    Literal(LiteralData<'db>),
+
+    /// `,`
+    Comma,
+    /// `.`
+    Dot,
+    /// `:`
+    Colon,
+    /// `~`
+    Tilde,
+    /// `?`
+    Quest,
+    /// `=`
+    Eq,
+    /// `!`
+    Ex,
+    /// `<`
+    Lt,
+    /// `>`
+    Gt,
+    /// `-`
+    Minus,
+    /// `&`
+    Amp,
+    /// `|`
+    Pipe,
+    /// `+`
+    Plus,
+    /// `/`
+    Slash,
+    /// `*`
+    Star,
+    /// `%`
+    Percent,
 
     /// `{`
     OpenBrace,
@@ -20,12 +52,21 @@ pub enum TokenKind<'db> {
     /// `)`
     CloseParen,
 
+    /// `..`
+    DotDot,
+    /// `==`
+    EqEq,
+    /// `=>`
+    EqGt,
+
     /// An end of input.
     Eof,
 }
 
-impl<'db> Token<'db> {
-    pub const fn new(kind: TokenKind<'db>) -> Self {
-        Self { kind }
-    }
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct LiteralData<'db> {
+    pub symbol: Symbol<'db>,
 }
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum LiteralKind {}
