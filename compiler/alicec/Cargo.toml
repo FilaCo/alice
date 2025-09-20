@@ -2,10 +2,10 @@
 name = "alicec"
 version = "0.1.0"
 edition = "2024"
-description = "Alice language compiler"
+description = "alicec - Alice language compiler"
 
 [dependencies]
 # tidy-alphabetical-start
-alicec_interface = { workspace = true }
+alicec_db = { workspace = true }
 clap = { workspace = true, features = ["derive"] }
 # tidy-alphabetical-end

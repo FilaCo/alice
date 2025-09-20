@@ -11,3 +11,9 @@ pub struct Spanned<'db, T> {
     pub span: Span<'db>,
     pub value: T,
 }
+
+impl<'db, T> Spanned<'db, T> {
+    pub fn new(value: T, span: Span<'db>) -> Self {
+        Self { value, span }
+    }
+}

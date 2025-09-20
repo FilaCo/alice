@@ -1,5 +1,6 @@
-pub mod cli;
+mod cli;
+pub mod driver;
 
 pub mod prelude {
-    pub use crate::cli::*;
+    pub use crate::driver::*;
 }

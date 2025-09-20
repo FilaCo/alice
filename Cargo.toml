@@ -5,11 +5,11 @@ members = ["compiler/*"]
 [workspace.dependencies]
 # tidy-alphabetical-start
 alicec_db = { path = "compiler/alicec_db" }
-alicec_interface = { path = "compiler/alicec_interface" }
+alicec_ir = { path = "compiler/alicec_ir" }
 alicec_lexer = { path = "compiler/alicec_lexer" }
 alicec_parser = { path = "compiler/alicec_parser" }
-alicec_query = { path = "compiler/alicec_query" }
-alicec_token = { path = "compiler/alicec_token" }
+ariadne = { version = "0.5" }
+colored = { version = "3" }
 clap = { version = "4" }
 salsa = { version = "0.23" }
 tracing = { version = "0.1" }

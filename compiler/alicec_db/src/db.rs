@@ -1,9 +1,11 @@
+pub trait AlicecDbTrait: salsa::Database {}
+
 #[salsa::db]
 #[derive(Default, Clone)]
-pub struct AliceDb {
+pub struct AlicecDb {
     storage: salsa::Storage<Self>,
 }
 
-pub use salsa::Database as AliceDbTrait;
+impl salsa::Database for AlicecDb {}
 
-impl AliceDbTrait for AliceDb {}
+impl AlicecDbTrait for AlicecDb {}

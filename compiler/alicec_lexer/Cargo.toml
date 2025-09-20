@@ -5,6 +5,8 @@ edition = "2024"
 
 [dependencies]
 # tidy-alphabetical-start
+alicec_db = { workspace = true }
+alicec_ir = { workspace = true }
 unicode-xid = { workspace = true }
 # tidy-alphabetical-end
 

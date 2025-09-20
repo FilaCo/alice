@@ -1,290 +1,87 @@
-use crate::{cursor::*, token::*};
+use crate::cursor::Cursor;
+use crate::token::{LitKind as RawLitKind, TokenKind as RawTokenKind};
+use alicec_db::prelude::{AlicecDbTrait, Diagnostic, Span, Spanned, Symbol};
+use alicec_ir::prelude::{LitKind, Token};
 
-use LiteralKind::*;
-use TokenKind::*;
+use LitKind::*;
+use Token::*;
 
-#[derive(Debug)]
-pub struct Lexer<'src> {
-    cursor: Cursor<'src>,
+pub struct Lexer<'db> {
+    db: &'db dyn AlicecDbTrait,
+    src: &'db str,
+    cursor: Cursor<'db>,
+    pos: usize,
 }
 
-impl<'src> Lexer<'src> {
-    pub fn new(input: &'src str) -> Self {
-        let cursor = Cursor::new(input);
-        Self { cursor }
-    }
+impl<'db> Lexer<'db> {
+    pub fn new(db: &'db dyn AlicecDbTrait, src: &'db str) -> Self {
+        let cursor = Cursor::new(src);
+        let pos = 0;
 
-    /// Creates an iterator that produces tokens from the input string.
-    pub fn tokenize(input: &'src str) -> impl Iterator<Item = Token> {
-        let mut lexer = Lexer::new(input);
-        std::iter::from_fn(move || {
-            let token = lexer.cook();
-            if token.kind != Eof { Some(token) } else { None }
-        })
-    }
-
-    pub fn cook(&mut self) -> Token {
-        let Some(first_char) = self.cursor.bump() else {
-            return Token { kind: Eof, len: 0 };
-        };
-
-        let kind = match first_char {
-            SLASH_CHAR => match self.cursor.first() {
-                SLASH_CHAR => self.line_comment(),
-                STAR_CHAR => self.block_comment(),
-                _ => Slash,
-            },
-
-            c if is_whitespace(c) => self.whitespace(),
-            c if is_id_start(c) => self.ident(),
-            c if is_decimal_digit(c) => {
-                let literal_kind = self.number_literal(c);
-                let suffix_start = self.token_len();
-                self.eat_literal_suffix();
-                Literal {
-                    kind: literal_kind,
-                    suffix_start,
-                }
-            }
-            DOUBLE_QUOTE_CHAR => {
-                let is_terminated = self.string_literal();
-                let suffix_start = self.token_len();
-                if matches!(is_terminated, Terminated::Yes) {
-                    self.eat_literal_suffix();
-                }
-                let kind = LiteralKind::String { is_terminated };
-                Literal { kind, suffix_start }
-            }
-
-            SEMI_CHAR => Semi,
-            COMMA_CHAR => Comma,
-            DOT_CHAR => Dot,
-            COLON_CHAR => Colon,
-            TILDE_CHAR => Tilde,
-            QUESTION_CHAR => Quest,
-            EX_CHAR => Ex,
-            EQ_CHAR => Eq,
-            LT_CHAR => Lt,
-            GT_CHAR => Gt,
-            MINUS_CHAR => Minus,
-            AMPERSAND_CHAR => Amp,
-            PIPE_CHAR => Pipe,
-            PLUS_CHAR => Plus,
-            STAR_CHAR => Star,
-            PERCENT_CHAR => Percent,
-            OPEN_BRACE_CHAR => OpenBrace,
-            CLOSE_BRACE_CHAR => CloseBrace,
-            OPEN_BRACKET_CHAR => OpenBracket,
-            CLOSE_BRACKET_CHAR => CloseBracket,
-            OPEN_PAREN_CHAR => OpenParen,
-            CLOSE_PAREN_CHAR => CloseParen,
-
-            _ => Unknown,
-        };
-
-        let res = Token {
-            kind,
-            len: self.token_len(),
-        };
-        self.cursor.reset_len_remaining();
-
-        res
-    }
-
-    fn line_comment(&mut self) -> TokenKind {
-        self.cursor.bump();
-
-        self.cursor.bump_while(|c| !matches!(c, NEW_LINE_CHAR));
-        LineComment
-    }
-
-    fn block_comment(&mut self) -> TokenKind {
-        self.cursor.bump();
-
-        let mut open_cnt = 1usize;
-        while let Some(c) = self.cursor.bump() {
-            match c {
-                // `/*` branch
-                SLASH_CHAR if self.cursor.first() == STAR_CHAR => {
-                    self.cursor.bump();
-                    open_cnt += 1;
-                }
-                // `*/` branch
-                STAR_CHAR if self.cursor.first() == SLASH_CHAR => {
-                    self.cursor.bump();
-                    open_cnt -= 1;
-
-                    if open_cnt == 0 {
-                        break;
-                    }
-                }
-                _ => (),
-            }
-        }
-
-        BlockComment {
-            is_terminated: if open_cnt == 0 {
-                Terminated::Yes
-            } else {
-                Terminated::No
-            },
+        Self {
+            db,
+            src,
+            cursor,
+            pos,
         }
     }
 
-    fn whitespace(&mut self) -> TokenKind {
-        self.cursor.bump_while(is_whitespace);
-        Whitespace
-    }
+    pub fn cook(&mut self) -> Spanned<'db, Token<'db>> {
+        let mut swallow_next_invalid = 0;
+        loop {
+            let raw_lexeme = self.cursor.bump_token();
+            let start = self.pos;
+            self.pos += raw_lexeme.len;
 
-    fn ident(&mut self) -> TokenKind {
-        self.cursor.bump_while(is_id_continue);
-        Ident
-    }
+            let lexeme = match raw_lexeme.kind {
+                RawTokenKind::Whitespace => continue,
 
-    fn number_literal(&mut self, first_digit: char) -> LiteralKind {
-        let mut base = Base::Decimal;
+                RawTokenKind::Lit(lit_kind) => self.cook_literal(lit_kind, start, self.pos),
 
-        if first_digit == ZERO_DIGIT_CHAR {
-            match self.cursor.first() {
-                B_CHAR | CAPITAL_B_CHAR => {
-                    base = Base::Binary;
-                    self.cursor.bump();
-                    let empty_int = self.eat_decimal_digits();
-                    return Int { base, empty_int };
-                }
-                O_CHAR | CAPITAL_O_CHAR => {
-                    base = Base::Octal;
-                    self.cursor.bump();
-                    let empty_int = self.eat_decimal_digits();
-                    return Int { base, empty_int };
-                }
-                X_CHAR | CAPITAL_X_CHAR => {
-                    base = Base::Hexadecimal;
-                    self.cursor.bump();
-                    let empty_int = self.eat_hexademical_digits();
-                    return Int { base, empty_int };
-                }
-                c if c == UNDERSCORE_CHAR || is_decimal_digit(c) => {
-                    self.eat_decimal_digits();
-                }
-                E_CHAR | CAPITAL_E_CHAR => {}
+                RawTokenKind::Minus => Minus,
+                RawTokenKind::Plus => Plus,
+                RawTokenKind::Slash => Slash,
+                RawTokenKind::Star => Star,
+                RawTokenKind::LParen => LParen,
+                RawTokenKind::RParen => RParen,
+
+                RawTokenKind::Eof => Eof,
+
                 _ => {
-                    return Int {
-                        base,
-                        empty_int: Empty::No,
-                    };
-                }
-            }
-        } else {
-            self.eat_decimal_digits();
-        }
-
-        match self.cursor.first() {
-            DOT_CHAR if !is_id_start(self.cursor.second()) => {
-                self.cursor.bump();
-                let mut empty_exponent = Empty::No;
-                if self.cursor.first().is_ascii_digit() {
-                    self.eat_decimal_digits();
-                    match self.cursor.first() {
-                        E_CHAR | CAPITAL_E_CHAR => {
-                            self.cursor.bump();
-                            empty_exponent = self.eat_float_exponent();
-                        }
-                        _ => (),
+                    if swallow_next_invalid > 0 {
+                        swallow_next_invalid -= 1;
+                        continue;
                     }
+
+                    let mut it = self.str_from_to_end(start).chars();
+                    let c = it.next().expect("unable to get next char");
+                    swallow_next_invalid = it.take_while(|c1| *c1 == c).count();
+
+                    Diagnostic::unknown_token_start(self.db);
+
+                    continue;
                 }
-                Float {
-                    base,
-                    empty_exponent,
-                }
-            }
-            E_CHAR | CAPITAL_E_CHAR => {
-                self.cursor.bump();
-                let empty_exponent = self.eat_float_exponent();
-                Float {
-                    base,
-                    empty_exponent,
-                }
-            }
-            _ => Int {
-                base,
-                empty_int: Empty::No,
-            },
+            };
+
+            let span = Span::new(self.db, start, self.pos);
+            return Spanned::new(lexeme, span);
         }
     }
 
-    fn string_literal(&mut self) -> Terminated {
-        while let Some(c) = self.cursor.bump() {
-            match c {
-                DOUBLE_QUOTE_CHAR => return Terminated::Yes,
-                BACK_SLASH_CHAR
-                    if matches!(self.cursor.first(), DOUBLE_QUOTE_CHAR | BACK_SLASH_CHAR) =>
-                {
-                    self.cursor.bump();
-                }
-                NEW_LINE_CHAR => return Terminated::No,
-                _ => (),
-            }
-        }
-        Terminated::No
+    fn cook_literal(&self, raw_kind: RawLitKind, start: usize, end: usize) -> Token<'db> {
+        let kind = match raw_kind {
+            RawLitKind::Int => Int,
+            RawLitKind::Float => Float,
+        };
+        let symbol = Symbol::new(self.db, self.str_from_to(start, end));
+        Lit { kind, symbol }
     }
 
-    fn token_len(&self) -> usize {
-        self.cursor.bumped_len()
+    fn str_from_to_end(&self, start: usize) -> &str {
+        &self.src[start..]
     }
 
-    fn eat_float_exponent(&mut self) -> Empty {
-        if matches!(self.cursor.first(), MINUS_CHAR | PLUS_CHAR) {
-            self.cursor.bump();
-        }
-        self.eat_decimal_digits()
-    }
-
-    fn eat_decimal_digits(&mut self) -> Empty {
-        let mut empty_int = Empty::Yes;
-        loop {
-            match self.cursor.first() {
-                UNDERSCORE_CHAR => {
-                    self.cursor.bump();
-                }
-                c if is_decimal_digit(c) => {
-                    empty_int = Empty::No;
-                    self.cursor.bump();
-                }
-                _ => break,
-            }
-        }
-        empty_int
-    }
-
-    fn eat_hexademical_digits(&mut self) -> Empty {
-        let mut empty_int = Empty::Yes;
-        loop {
-            match self.cursor.first() {
-                UNDERSCORE_CHAR => {
-                    self.cursor.bump();
-                }
-                c if is_hexademical_digit(c) => {
-                    empty_int = Empty::No;
-                    self.cursor.bump();
-                }
-                _ => break,
-            }
-        }
-        empty_int
-    }
-
-    fn eat_literal_suffix(&mut self) {
-        self.eat_identifier();
-    }
-
-    fn eat_identifier(&mut self) {
-        if !is_id_start(self.cursor.first()) {
-            return;
-        }
-
-        self.cursor.bump();
-
-        self.cursor.bump_while(is_id_continue);
+    fn str_from_to(&self, start: usize, end: usize) -> &str {
+        &self.src[start..end]
     }
 }

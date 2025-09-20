@@ -1,5 +1,10 @@
 use std::str::Chars;
 
+use crate::token::{LitKind, Token, TokenKind};
+
+use LitKind::*;
+use TokenKind::*;
+
 /// Peekable iterator over a char sequence.
 ///
 /// Next characters can be peeked via `first` method,
@@ -19,14 +24,98 @@ impl<'src> Cursor<'src> {
         }
     }
 
+    pub fn tokenize(input: &'src str) -> impl Iterator<Item = Token> {
+        let mut cursor = Self::new(input);
+
+        std::iter::from_fn(move || {
+            let lexeme = cursor.bump_token();
+
+            if lexeme.kind != Eof {
+                Some(lexeme)
+            } else {
+                None
+            }
+        })
+    }
+
+    pub fn bump_token(&mut self) -> Token {
+        let Some(first_char) = self.bump() else {
+            return Token { kind: Eof, len: 0 };
+        };
+
+        let kind = match first_char {
+            c if is_whitespace(c) => self.bump_whitespace(),
+            c @ '0'..='9' => {
+                let lit_kind = self.bump_num_lit(c);
+                Lit(lit_kind)
+            }
+
+            '-' => Minus,
+            '+' => Plus,
+            '/' => Slash,
+            '*' => Star,
+
+            '(' => LParen,
+            ')' => RParen,
+
+            _ => Unknown,
+        };
+
+        let res = Token {
+            kind,
+            len: self.bumped_len(),
+        };
+        self.reset_len_remaining();
+
+        res
+    }
+
+    fn bump_whitespace(&mut self) -> TokenKind {
+        self.bump_while(is_whitespace);
+        Whitespace
+    }
+
+    fn bump_num_lit(&mut self, first_digit: char) -> LitKind {
+        if first_digit == '0' {
+            match self.first() {
+                '0'..='9' => {
+                    self.bump_digits();
+                }
+                _ => {
+                    return Int;
+                }
+            }
+        } else {
+            self.bump_digits();
+        }
+
+        match self.first() {
+            '.' => {
+                self.bump();
+                if let '0'..='9' = self.first() {
+                    self.bump_digits();
+                }
+
+                Float
+            }
+            _ => Int,
+        }
+    }
+
+    fn bump_digits(&mut self) {
+        while let '0'..='9' = self.first() {
+            self.bump();
+        }
+    }
+
     /// Moves to the next character.
-    pub fn bump(&mut self) -> Option<char> {
+    fn bump(&mut self) -> Option<char> {
         self.chars.next()
     }
 
-    /// Bumps symbols while predicate returns true or until the end of file is reached.
-    pub fn bump_while(&mut self, predicate: impl Fn(char) -> bool) {
-        while predicate(self.first()) && !self.is_eof() {
+    /// Bumps chars while predicate returns true or until the end of file is reached.
+    fn bump_while(&mut self, predicate: impl Fn(char) -> bool) {
+        while predicate(self.first()) && !self.is_at_eof() {
             self.bump();
         }
     }
@@ -35,108 +124,100 @@ impl<'src> Cursor<'src> {
     /// If requested position doesn't exist, `EOF_CHAR` is returned.
     /// However, getting `EOF_CHAR` doesn't always mean actual end of file,
     /// it should be checked with `is_eof` method.
-    pub fn first(&self) -> char {
+    fn first(&self) -> char {
         // `.next()` optimizes better than `.nth(0)`
         self.chars.clone().next().unwrap_or(EOF_CHAR)
     }
 
-    /// Peeks the second symbol from the input stream without consuming it.
-    pub fn second(&self) -> char {
-        // `.next()` optimizes better than `.nth(1)`
-        let mut iter = self.chars.clone();
-        iter.next();
-        iter.next().unwrap_or(EOF_CHAR)
-    }
-
     /// Returns amount of already bumped symbols.
-    pub fn bumped_len(&self) -> usize {
+    fn bumped_len(&self) -> usize {
         self.len_remaining - self.chars.as_str().len()
     }
 
     /// Resets the number of bytes consumed to 0.
-    pub fn reset_len_remaining(&mut self) {
+    fn reset_len_remaining(&mut self) {
         self.len_remaining = self.chars.as_str().len();
     }
 
     /// Checks if there is nothing more to consume.
-    fn is_eof(&self) -> bool {
+    fn is_at_eof(&self) -> bool {
         self.chars.as_str().is_empty()
     }
 }
 
-pub const SEMI_CHAR: char = ';';
-pub const COMMA_CHAR: char = ',';
-pub const DOT_CHAR: char = '.';
-pub const COLON_CHAR: char = ':';
-pub const TILDE_CHAR: char = '~';
-pub const QUESTION_CHAR: char = '?';
-pub const EQ_CHAR: char = '=';
-pub const EX_CHAR: char = '!';
-pub const LT_CHAR: char = '<';
-pub const GT_CHAR: char = '>';
-pub const MINUS_CHAR: char = '-';
-pub const AMPERSAND_CHAR: char = '&';
-pub const PIPE_CHAR: char = '|';
-pub const PLUS_CHAR: char = '+';
-pub const SLASH_CHAR: char = '/';
-pub const STAR_CHAR: char = '*';
-pub const PERCENT_CHAR: char = '%';
+const EOF_CHAR: char = '\0';
 
-pub const OPEN_BRACE_CHAR: char = '{';
-pub const CLOSE_BRACE_CHAR: char = '}';
-pub const OPEN_BRACKET_CHAR: char = '[';
-pub const CLOSE_BRACKET_CHAR: char = ']';
-pub const OPEN_PAREN_CHAR: char = '(';
-pub const CLOSE_PAREN_CHAR: char = ')';
-
-pub const UNDERSCORE_CHAR: char = '_';
-
-pub const ZERO_DIGIT_CHAR: char = '0';
-pub const NINE_DIGIT_CHAR: char = '9';
-pub const A_CHAR: char = 'a';
-pub const Z_CHAR: char = 'z';
-pub const CAPITAL_A_CHAR: char = 'A';
-pub const CAPITAL_Z_CHAR: char = 'Z';
-pub const B_CHAR: char = 'b';
-pub const CAPITAL_B_CHAR: char = 'B';
-pub const O_CHAR: char = 'o';
-pub const CAPITAL_O_CHAR: char = 'O';
-pub const X_CHAR: char = 'x';
-pub const CAPITAL_X_CHAR: char = 'X';
-pub const E_CHAR: char = 'e';
-pub const CAPITAL_E_CHAR: char = 'E';
-
-pub const DOUBLE_QUOTE_CHAR: char = '"';
-
-pub const BACK_SLASH_CHAR: char = '\\';
-pub const NEW_LINE_CHAR: char = '\n';
-pub const TAB_CHAR: char = '\t';
-pub const CARRIAGE_RETURN_CHAR: char = '\r';
-pub const SPACE_CHAR: char = ' ';
-
-pub const EOF_CHAR: char = '\0';
-
-pub fn is_id_start(c: char) -> bool {
-    c == UNDERSCORE_CHAR || unicode_xid::UnicodeXID::is_xid_start(c)
-}
-
-pub fn is_id_continue(c: char) -> bool {
-    unicode_xid::UnicodeXID::is_xid_continue(c)
-}
-
-pub fn is_whitespace(c: char) -> bool {
+fn is_whitespace(c: char) -> bool {
     matches!(
         c,
-        SPACE_CHAR | NEW_LINE_CHAR | TAB_CHAR | CARRIAGE_RETURN_CHAR
+        // End-of-line characters
+        | '\u{000A}' // line feed (\n)
+        | '\u{000B}' // vertical tab
+        | '\u{000C}' // form feed
+        | '\u{000D}' // carriage return (\r)
+        | '\u{0085}' // next line (from latin1)
+        | '\u{2028}' // LINE SEPARATOR
+        | '\u{2029}' // PARAGRAPH SEPARATOR
+
+        // `Default_Ignorable_Code_Point` characters
+        | '\u{200E}' // LEFT-TO-RIGHT MARK
+        | '\u{200F}' // RIGHT-TO-LEFT MARK
+
+        // Horizontal space characters
+        | '\u{0009}' // tab (\t)
+        | '\u{0020}' // space
     )
 }
 
-pub fn is_decimal_digit(c: char) -> bool {
-    (ZERO_DIGIT_CHAR..=NINE_DIGIT_CHAR).contains(&c)
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use expect_test::{Expect, expect};
 
-pub fn is_hexademical_digit(c: char) -> bool {
-    is_decimal_digit(c)
-        || (A_CHAR..=Z_CHAR).contains(&c)
-        || (CAPITAL_A_CHAR..=CAPITAL_Z_CHAR).contains(&c)
+    fn check_lexing(src: &str, expect: Expect) {
+        let actual: String = Cursor::tokenize(src)
+            .map(|token| format!("{:?}\n", token))
+            .collect();
+        expect.assert_eq(&actual)
+    }
+
+    #[test]
+    fn smoke() {
+        check_lexing(
+            r"
+1 + 2 * 3 - 10 * (123 + 321) / 31.12321
+",
+            expect![[r"
+Token { kind: Whitespace, len: 1 }
+Token { kind: Lit(Int), len: 1 }
+Token { kind: Whitespace, len: 1 }
+Token { kind: Plus, len: 1 }
+Token { kind: Whitespace, len: 1 }
+Token { kind: Lit(Int), len: 1 }
+Token { kind: Whitespace, len: 1 }
+Token { kind: Star, len: 1 }
+Token { kind: Whitespace, len: 1 }
+Token { kind: Lit(Int), len: 1 }
+Token { kind: Whitespace, len: 1 }
+Token { kind: Minus, len: 1 }
+Token { kind: Whitespace, len: 1 }
+Token { kind: Lit(Int), len: 2 }
+Token { kind: Whitespace, len: 1 }
+Token { kind: Star, len: 1 }
+Token { kind: Whitespace, len: 1 }
+Token { kind: LParen, len: 1 }
+Token { kind: Lit(Int), len: 3 }
+Token { kind: Whitespace, len: 1 }
+Token { kind: Plus, len: 1 }
+Token { kind: Whitespace, len: 1 }
+Token { kind: Lit(Int), len: 3 }
+Token { kind: RParen, len: 1 }
+Token { kind: Whitespace, len: 1 }
+Token { kind: Slash, len: 1 }
+Token { kind: Whitespace, len: 1 }
+Token { kind: Lit(Float), len: 8 }
+Token { kind: Whitespace, len: 1 }
+"]],
+        );
+    }
 }

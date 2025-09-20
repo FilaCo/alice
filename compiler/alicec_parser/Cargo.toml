@@ -7,5 +7,4 @@ edition = "2024"
 # tidy-alphabetical-start
 alicec_db = { workspace = true }
 alicec_lexer = { workspace = true }
-alicec_token = { workspace = true }
 # tidy-alphabetical-end
