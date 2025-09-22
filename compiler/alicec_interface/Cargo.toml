@@ -1,10 +1,10 @@
 [package]
-name = "alicec_db"
+name = "alicec_interface"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 # tidy-alphabetical-start
-ariadne = { workspace = true }
-salsa = { workspace = true }
+alicec_db = { workspace = true }
+alicec_query = { workspace = true }
 # tidy-alphabetical-end

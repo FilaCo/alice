@@ -1,10 +1,10 @@
 use crate::cursor::Cursor;
 use crate::token::{LitKind as RawLitKind, TokenKind as RawTokenKind};
-use alicec_db::prelude::{AlicecDbTrait, Diagnostic, Span, Spanned, Symbol};
-use alicec_ir::prelude::{LitKind, Token};
-
 use LitKind::*;
 use Token::*;
+use alicec_db::prelude::AlicecDbTrait;
+use alicec_diag::prelude::Diagnostic;
+use alicec_ir::prelude::{LitKind, Span, Spanned, Symbol, Token};
 
 pub struct Lexer<'db> {
     db: &'db dyn AlicecDbTrait,
@@ -63,7 +63,7 @@ impl<'db> Lexer<'db> {
                 }
             };
 
-            let span = Span::new(self.db, start, self.pos);
+            let span = Span::new(self.db, start.into(), self.pos.into());
             return Spanned::new(lexeme, span);
         }
     }

@@ -1,4 +1,4 @@
-use alicec_db::prelude::Symbol;
+use crate::symbol::Symbol;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Token<'db> {

@@ -1,0 +1,16 @@
+[package]
+name = "alicec_driver"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+# tidy-alphabetical-start
+alicec_db = { workspace = true }
+alicec_diag = { workspace = true }
+alicec_error = { workspace = true }
+alicec_interface = { workspace = true }
+alicec_query = { workspace = true }
+ariadne = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
+ctrlc = { workspace = true }
+# tidy-alphabetical-end
