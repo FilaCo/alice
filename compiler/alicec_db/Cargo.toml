@@ -5,6 +5,5 @@ edition = "2024"
 
 [dependencies]
 # tidy-alphabetical-start
-ariadne = { workspace = true }
 salsa = { workspace = true }
 # tidy-alphabetical-end

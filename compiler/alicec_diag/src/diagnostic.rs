@@ -1,6 +1,5 @@
-use alicec_db::prelude::AlicecDbTrait;
-
 #[salsa::accumulator]
+#[derive(Debug)]
 pub struct Diagnostic {
     pub kind: DiagnosticKind,
 }
@@ -13,7 +12,11 @@ pub enum DiagnosticKind {
 }
 
 impl Diagnostic {
-    pub fn unknown_token_start(db: &dyn AlicecDbTrait) -> Self {
+    pub fn unknown_token_start() -> Self {
+        todo!()
+    }
+
+    pub fn unexpected_token() -> Self {
         todo!()
     }
 }

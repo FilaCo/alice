@@ -6,5 +6,7 @@ edition = "2024"
 [dependencies]
 # tidy-alphabetical-start
 alicec_db = { workspace = true }
+alicec_ir = { workspace = true }
+alicec_parser = { workspace = true }
 salsa = { workspace = true }
 # tidy-alphabetical-end

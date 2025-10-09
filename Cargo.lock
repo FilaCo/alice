@@ -13,7 +13,6 @@ dependencies = [
 name = "alicec_db"
 version = "0.0.0"
 dependencies = [
- "ariadne",
  "salsa",
 ]
 
@@ -21,7 +20,6 @@ dependencies = [
 name = "alicec_diag"
 version = "0.0.0"
 dependencies = [
- "alicec_db",
  "salsa",
 ]
 
@@ -33,6 +31,7 @@ dependencies = [
  "alicec_diag",
  "alicec_error",
  "alicec_interface",
+ "alicec_ir",
  "alicec_query",
  "ariadne",
  "clap",
@@ -67,6 +66,7 @@ dependencies = [
  "alicec_diag",
  "alicec_ir",
  "expect-test",
+ "salsa",
  "unicode-xid",
 ]
 
@@ -75,7 +75,10 @@ name = "alicec_parser"
 version = "0.0.0"
 dependencies = [
  "alicec_db",
+ "alicec_diag",
+ "alicec_ir",
  "alicec_lexer",
+ "salsa",
 ]
 
 [[package]]
@@ -83,6 +86,8 @@ name = "alicec_query"
 version = "0.0.0"
 dependencies = [
  "alicec_db",
+ "alicec_ir",
+ "alicec_parser",
  "salsa",
 ]
 

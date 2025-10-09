@@ -8,6 +8,7 @@ edition = "2024"
 alicec_db = { workspace = true }
 alicec_diag = { workspace = true }
 alicec_ir = { workspace = true }
+salsa = { workspace = true }
 unicode-xid = { workspace = true }
 # tidy-alphabetical-end
 

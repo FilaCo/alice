@@ -1,10 +1,12 @@
 mod cli;
 
 use crate::cli::Cli;
+use alicec_db::prelude::AlicecDb;
 use alicec_diag::prelude::Diagnostic;
 use alicec_error::prelude::{FatalError, FatalErrorMarker};
 use alicec_interface::prelude::Config;
-use alicec_query::compile;
+use alicec_ir::prelude::SourceFile;
+use alicec_query::{compile, parse};
 use ariadne::Report;
 use clap::Parser;
 use std::{panic, process};
@@ -34,19 +36,29 @@ pub fn catch_fatal_errors<F: FnOnce() -> R, R>(f: F) -> Result<R, FatalError> {
 
 pub fn run_compiler() {
     let args = Cli::parse();
-    let config = Config {
-        input: args.input,
-        include_dirs: args.include_directory,
-    };
-    alicec_interface::run_compiler(config, |db| {
-        compile::compile(db);
+    // let config = Config {
+    //     input: args.input,
+    //     include_dirs: args.include_directory,
+    // };
 
-        let diags = compile::compile::accumulated::<Diagnostic>(db);
-        for diag in diags {
-            // let report: Report<'_> = diag.into();
-            // report.eprint(db);
-        }
-    });
+    let db = AlicecDb::default();
+    let source_file = SourceFile::new(&db, "test".into(), "1-(2+3)*3".to_string());
+    parse::parse(&db, source_file);
+    let diags = parse::parse::accumulated::<Diagnostic>(&db, source_file);
+    for diag in diags {
+        eprintln!("{:#?}", diag)
+    }
+
+    // alicec_interface::run_compiler(config, |ci| {
+    //     // let db = &ci.db;
+    //     // compile::compile(db, db.source_map());
+
+    //     // let diags = compile::compile::accumulated::<Diagnostic>(db, source_map);
+    //     // for diag in diags {
+    //     // let report: Report<'_> = diag.into();
+    //     // report.eprint(db);
+    //     // }
+    // });
 }
 
 pub fn main() -> ! {

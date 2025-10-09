@@ -16,7 +16,6 @@ alicec_query = { path = "compiler/alicec_query" }
 ariadne = { version = "0.5" }
 clap = { version = "4" }
 ctrlc = { version = "3" }
-memmap2 = { version = "0.9" }
 salsa = { version = "0.23" }
 tracing = { version = "0.1" }
 unicode-xid = { version = "0.2" }
