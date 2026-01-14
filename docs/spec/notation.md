@@ -27,4 +27,5 @@ Lowercase production names are used to identify lexical (terminal) tokens. Non-t
 The form a … b represents the set of characters from a through b as alternatives. The horizontal ellipsis … is also used elsewhere in the spec to informally denote various enumerations or code snippets that are not further specified. The character … is not a token of the Alice language. 
 
 :arrow_right: Next: [Source code representation](source_code_representation.md)
+
 :blue_book: Back: [Table of contents](table_of_contents.md)
