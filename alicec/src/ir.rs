@@ -4,12 +4,47 @@ pub struct SourceFile {
     pub text: String,
 }
 
+#[salsa::interned(debug)]
+pub struct PropId<'db> {
+    #[returns(ref)]
+    pub value: String,
+}
+
+#[salsa::interned(debug)]
+pub struct SysId<'db> {
+    #[returns(ref)]
+    pub value: String,
+}
+
 #[salsa::tracked(debug)]
 pub struct Span<'db> {
     #[tracked]
     pub lo: usize,
     #[tracked]
     pub hi: usize,
+}
+
+#[salsa::tracked(debug)]
+pub struct Ast<'db> {
+    pub root: Node<'db>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, salsa::Update)]
+pub enum Node<'db> {
+    Decl(Decl<'db>),
+    Expr(Expr<'db>),
+}
+
+#[salsa::tracked(debug)]
+pub struct Decl<'db> {
+    #[tracked]
+    pub span: Span<'db>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, salsa::Update)]
+pub enum DeclKind<'db> {
+    Prop { id: PropId<'db> },
+    Sys { id: SysId<'db> },
 }
 
 #[salsa::tracked(debug)]
@@ -20,7 +55,7 @@ pub struct Expr<'db> {
     pub span: Span<'db>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, salsa::Update)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, salsa::Update)]
 pub enum ExprKind<'db> {
     Binary {
         lhs: Box<Expr<'db>>,
@@ -64,7 +99,7 @@ pub struct UnaryOp<'db> {
     pub span: Span<'db>,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, salsa::Update)]
+#[derive(Clone, Copy, Debug, PartialEq, Hash, Eq, salsa::Update)]
 pub enum UnaryOpKind {
     /// The `-` operator for negation
     Neg,

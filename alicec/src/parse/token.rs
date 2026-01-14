@@ -8,7 +8,7 @@ pub enum Token<'src> {
     #[regex(r"[ \t\n\r]+", logos::skip)]
     Whitespace,
 
-    /// Any whitespace character sequence.
+    /// A line comment, e.g. `// comment`.
     #[regex(r"//.*", logos::skip, allow_greedy = true)]
     LineComment,
 
@@ -120,7 +120,7 @@ sys PointAddPoint =
         point.x += otherPoint.x;
         point.y += otherPoint.y;
     }
-    delete op
+    delete<AddPoint>(self)
 ";
         let expect = expect![[r#"
             Ident("prop")
