@@ -1,0 +1,71 @@
+#[salsa::input(debug)]
+pub struct SourceFile {
+    #[returns(ref)]
+    pub text: String,
+}
+
+#[salsa::tracked(debug)]
+pub struct Span<'db> {
+    #[tracked]
+    pub lo: usize,
+    #[tracked]
+    pub hi: usize,
+}
+
+#[salsa::tracked(debug)]
+pub struct Expr<'db> {
+    #[tracked]
+    pub kind: ExprKind<'db>,
+    #[tracked]
+    pub span: Span<'db>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, salsa::Update)]
+pub enum ExprKind<'db> {
+    Binary {
+        lhs: Box<Expr<'db>>,
+        op: BinaryOp<'db>,
+        rhs: Box<Expr<'db>>,
+    },
+    Unary {
+        op: UnaryOp<'db>,
+        rhs: Box<Expr<'db>>,
+    },
+    Grouped {
+        expr: Box<Expr<'db>>,
+    },
+}
+
+#[salsa::tracked(debug)]
+pub struct BinaryOp<'db> {
+    #[tracked]
+    pub kind: BinaryOpKind,
+    #[tracked]
+    pub span: Span<'db>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, salsa::Update)]
+pub enum BinaryOpKind {
+    /// The `+` operator (addition)
+    Add,
+    /// The `-` operator (subtraction)
+    Sub,
+    /// The `*` operator (multiplication)
+    Mul,
+    /// The `/` operator (division)
+    Div,
+}
+
+#[salsa::tracked(debug)]
+pub struct UnaryOp<'db> {
+    #[tracked]
+    pub kind: UnaryOpKind,
+    #[tracked]
+    pub span: Span<'db>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, salsa::Update)]
+pub enum UnaryOpKind {
+    /// The `-` operator for negation
+    Neg,
+}
