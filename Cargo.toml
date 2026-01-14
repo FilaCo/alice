@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["alicec"]
+members = ["alicec", "wonderland"]
 
 [workspace.dependencies]
 ariadne = { version = "0.6" }
