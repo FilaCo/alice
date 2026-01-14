@@ -4,6 +4,5 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-# tidy-alphabetical-start
-alicec_driver = { workspace = true }
-# tidy-alphabetical-end
+logos.workspace = true
+salsa.workspace = true

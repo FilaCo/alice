@@ -1,8 +1,8 @@
 #[salsa::db]
 pub trait AlicecDbTrait: salsa::Database {}
 
+#[derive(Clone, Default)]
 #[salsa::db]
-#[derive(Default, Clone)]
 pub struct AlicecDb {
     storage: salsa::Storage<Self>,
 }
