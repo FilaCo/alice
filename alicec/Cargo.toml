@@ -6,3 +6,7 @@ edition = "2024"
 [dependencies]
 logos.workspace = true
 salsa.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+expect-test.workspace = true
