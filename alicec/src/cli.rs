@@ -14,8 +14,9 @@ pub struct Cli {
     pub include_directory: Vec<PathBuf>,
     /// Kind of output for the compiler to emit.
     /// Each KIND has the default FILE name:
-    /// * tokens - PROJECT_NAME.tok
-    /// * ast    - PROJECT_NAME.ast
+    /// * expanded - PROJECT_NAME.exp
+    /// * tokens   - PROJECT_NAME.tok
+    /// * ast      - PROJECT_NAME.ast
     #[arg(long, value_name = "KIND[=FILE]", value_parser = parse_emit, verbatim_doc_comment)]
     pub emit: Vec<EmitArg>,
     /// Use verbose output
@@ -28,6 +29,7 @@ pub struct Cli {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 pub enum EmitKind {
+    Expanded,
     Tokens,
     Ast,
 }
