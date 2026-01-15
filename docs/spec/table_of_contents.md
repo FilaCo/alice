@@ -4,3 +4,5 @@
 - [Introduction](introduction.md)
 - [Notation](notation.md)
 - [Source code representation](source_code_representation.md)
+  - [Characters](source_code_representation.md#characters)
+  - [Letters and digits](source_code_representation.md#letters-and-digits)

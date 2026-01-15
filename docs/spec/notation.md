@@ -1,6 +1,6 @@
 # Notation
 
-The syntax is specified using a variant of Extended Backus-Naur Form (EBNF):
+The syntax is specified using a [variant](https://en.wikipedia.org/wiki/Wirth_syntax_notation) of Extended Backus-Naur Form (EBNF):
 
 ```ebnf
 Syntax      = { Production } .
