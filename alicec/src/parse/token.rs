@@ -110,12 +110,12 @@ prop Point {
 }
 
 prop AddPoint {
-    other: Entity
+    other: id
 }
 
 sys PointAddPoint =
     query Point as point, AddPoint as op
-    derive otherPoint = fetch<Point>(op.other)
+    derive otherPoint = get<Point>(op.other)
     derive {
         point.x += otherPoint.x;
         point.y += otherPoint.y;
@@ -138,7 +138,7 @@ sys PointAddPoint =
             LBrace
             Ident("other")
             Colon
-            Ident("Entity")
+            Ident("id")
             RBrace
             Ident("sys")
             Ident("PointAddPoint")
@@ -154,7 +154,7 @@ sys PointAddPoint =
             Ident("derive")
             Ident("otherPoint")
             Eq
-            Ident("fetch")
+            Ident("get")
             Lt
             Ident("Point")
             Gt
@@ -185,7 +185,12 @@ sys PointAddPoint =
             Semi
             RBrace
             Ident("delete")
-            Ident("op")
+            Lt
+            Ident("AddPoint")
+            Gt
+            LParen
+            Ident("self")
+            RParen
             "#]];
         check_lexing(src, expect);
     }
