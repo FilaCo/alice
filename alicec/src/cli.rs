@@ -2,7 +2,7 @@ use clap::{ArgAction, ColorChoice, Parser, ValueEnum};
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
+#[command(version)]
 pub struct Cli {
     /// Input source files
     pub input: Vec<PathBuf>,

@@ -1,5 +1,6 @@
-use alicec::driver::Driver;
+use alicec::prelude::*;
+use clap::Parser;
 
 fn main() {
-    Driver::compile();
+    let args = Cli::parse();
 }

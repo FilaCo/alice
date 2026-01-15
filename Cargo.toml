@@ -9,6 +9,6 @@ clap = { version = "4" }
 ctrlc = { version = "3" }
 expect-test = { version = "1" }
 logos = { version = "0.16" }
+memmap2 = { version = "0.9" }
 salsa = { version = "0.25" }
 thiserror = { version = "2" }
-tracing = { version = "0.1" }

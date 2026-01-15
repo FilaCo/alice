@@ -76,6 +76,9 @@ pub enum Token<'src> {
     /// `%`
     #[token("%")]
     Percent,
+    /// `#`
+    #[token("#")]
+    Hash,
 
     /// Unknown token, not expected by the lexer, e.g. "№"
     Error,
