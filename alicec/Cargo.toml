@@ -2,8 +2,16 @@
 name = "alicec"
 version = "0.1.0"
 edition = "2024"
+description = "Alice's reference compiler implementation"
+authors = ["Dmitrii Chizha <me@filaco.dev>"]
+license = "MIT or Apache-2.0"
+repository = "https://github.com/FilaCo/alice"
+keywords = ["programming-language", "compiler", "ecs", "data-oriented"]
+categories = ["development-tools::compilers"]
+readme = "README.md"
 
 [dependencies]
+clap = { workspace = true, features = ["derive"] }
 logos.workspace = true
 salsa.workspace = true
 thiserror.workspace = true
