@@ -35,12 +35,48 @@ impl PartialEq for EmitArg {
     }
 }
 
+/// Parse a string argument for the `--emit` option.
+///
+/// The string must follow the format `KIND[=FILE]` where:
+/// - `KIND` is one of the [`EmitKind`] variants (case-insensitive)
+/// - `FILE` is an optional output file path
+///
+/// # Examples
+/// - `"tokens"` → Emit tokens with default filename
+/// - `"ast=output.ast"` → Emit AST to `output.ast`
+/// - `"Tokens=debug.tok"` → Case-insensitive, emit tokens to `debug.tok`
+///
+/// # Arguments
+///
+/// * `s` - The string to parse in `KIND[=FILE]` format
+///
+/// # Returns
+///
+/// Returns `Ok(EmitArg)` if parsing succeeds, or an error string describing
+/// what went wrong.
+///
+/// # Errors
+///
+/// Returns an error string if:
+/// - `KIND` is missing or empty (e.g., `""`, `"=file"`)
+/// - `KIND` is not a valid [`EmitKind`] variant
+/// - `FILE` is specified but empty (e.g., `"tokens="`, `"ast=   "`)
+/// - There are multiple `=` characters (e.g., `"tokens=a=b"`)
 fn parse_emit(s: &str) -> Result<EmitArg, String> {
+    // TODO: more verbose error messages, e.g. for `invalid=` input provide 2 error notes
+    // We use `split('=')` instead of `split_once('=')` to detect
+    // multiple `=` characters and provide better error messages.
     let mut parts = s.split('=');
     let kind = parts
         .next()
-        .ok_or(String::from("KIND is missing"))
-        .and_then(|kind| EmitKind::from_str(kind, true))?;
+        .ok_or(String::from("KIND is empty"))
+        .and_then(|s| {
+            if s.is_empty() {
+                Err(String::from("KIND is empty"))
+            } else {
+                EmitKind::from_str(s, true)
+            }
+        });
     let file = parts
         .next()
         .map(|s| s.trim())
@@ -51,7 +87,7 @@ fn parse_emit(s: &str) -> Result<EmitArg, String> {
                 Ok(PathBuf::from(s))
             }
         })
-        .transpose()?;
+        .transpose();
 
     if parts.count() > 0 {
         return Err(String::from(
@@ -59,7 +95,10 @@ fn parse_emit(s: &str) -> Result<EmitArg, String> {
         ));
     }
 
-    Ok(EmitArg { kind, file })
+    Ok(EmitArg {
+        kind: kind?,
+        file: file?,
+    })
 }
 
 #[cfg(test)]
@@ -104,12 +143,20 @@ mod tests {
     #[test]
     fn test_parse_emit_errors() {
         // Invalid emission kind
-        assert!(parse_emit("invalid").is_err());
-        assert!(parse_emit("tokens=file.tok=extra").is_err());
+        assert!(parse_emit("invalid").is_err_and(|e| e.contains("invalid variant: invalid")));
+        assert!(parse_emit("invalid=").is_err_and(|e| e.contains("invalid variant: invalid")));
+        assert!(parse_emit("=output.tok").is_err_and(|e| e.contains("KIND is empty")));
+        assert!(parse_emit("=").is_err_and(|e| e.contains("KIND is empty")));
+
+        // Too many '=' characters
+        assert!(
+            parse_emit("tokens=file.tok=extra")
+                .is_err_and(|e| e.contains("too many '=' characters, expected format KIND[=FILE]"))
+        );
 
         // Empty file path
-        assert!(parse_emit("tokens=").is_err());
-        assert!(parse_emit("ast=   ").is_err());
+        assert!(parse_emit("tokens=").is_err_and(|e| e.contains("FILE is empty")));
+        assert!(parse_emit("ast=   ").is_err_and(|e| e.contains("FILE is empty")));
     }
 
     #[test]
