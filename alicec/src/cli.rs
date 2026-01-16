@@ -1,26 +1,22 @@
 use clap::{Parser, ValueEnum};
 use std::path::PathBuf;
 
+use crate::config::EmitKind;
+
 #[derive(Parser, Debug)]
 #[command(version)]
 pub struct Cli {
     /// Input source file
     pub input: PathBuf,
-    /// Kind of output for the compiler to emit.
+    /// Kind of output for the compiler to emit
     /// Each KIND has the default FILE name:
-    /// * tokens   - PROJECT_NAME.tok
-    /// * ast      - PROJECT_NAME.ast
+    /// * tokens   - CAKE_NAME.tok
+    /// * ast      - CAKE_NAME.ast
     #[arg(long, value_name = "KIND[=FILE]", value_parser = parse_emit, verbatim_doc_comment)]
     pub emit: Vec<EmitArg>,
-}
-
-/// Kinds of output the alicec can emit.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
-pub enum EmitKind {
-    /// Emit the token stream after lexical analysis.
-    Tokens,
-    /// Emit the abstract syntax tree after parsing.
-    Ast,
+    /// Specify the name of the cake being baked
+    #[arg(long, value_name = "NAME")]
+    pub cake_name: Option<String>,
 }
 
 #[derive(Debug, Clone, Eq)]
