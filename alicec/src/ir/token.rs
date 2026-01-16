@@ -1,6 +1,6 @@
 use logos::Logos;
 
-use LitKind::*;
+use LiteralKind::*;
 
 #[derive(Logos, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Token<'src> {
@@ -17,7 +17,7 @@ pub enum Token<'src> {
     Ident(&'src str),
 
     #[regex(r"[0-9]+(?:_[0-9]+)*", |lex| Int { value: lex.slice() })]
-    Lit(LitKind<'src>),
+    Literal(LiteralKind<'src>),
 
     /// `;`
     #[token(";")]
@@ -76,16 +76,13 @@ pub enum Token<'src> {
     /// `%`
     #[token("%")]
     Percent,
-    /// `#`
-    #[token("#")]
-    Hash,
 
     /// Unknown token, not expected by the lexer, e.g. "№"
-    Error,
+    Unknown,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum LitKind<'src> {
+pub enum LiteralKind<'src> {
     Int { value: &'src str },
 }
 
@@ -98,7 +95,7 @@ mod tests {
         let tokens = Token::lexer(src)
             .map(|item| match item {
                 Ok(tok) => format!("{:?}\n", tok),
-                Err(_) => format!("{:?}\n", Token::Error),
+                Err(_) => format!("{:?}\n", Token::Unknown),
             })
             .collect::<String>();
         expect.assert_eq(&tokens);

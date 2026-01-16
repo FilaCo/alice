@@ -1,11 +1,14 @@
+pub mod accumulator;
 pub mod cli;
+mod config;
 pub mod db;
-pub mod diag;
 mod ir;
 pub mod query;
 
 pub mod prelude {
+    pub use crate::accumulator::*;
     pub use crate::cli::*;
     pub use crate::db::*;
-    pub use crate::diag::*;
+    pub use crate::ir::input::*;
+    pub use crate::query::*;
 }

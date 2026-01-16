@@ -9,6 +9,14 @@ pub struct AlicecDb {
     storage: Storage<Self>,
 }
 
+impl AlicecDb {
+    pub fn new() -> Self {
+        Self {
+            storage: Storage::default(),
+        }
+    }
+}
+
 impl Database for AlicecDb {}
 
 #[salsa::db]
