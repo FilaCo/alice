@@ -2,37 +2,37 @@ use crate::ir::Span;
 
 #[salsa::tracked(debug)]
 pub struct Ast<'db> {
-    pub statements: Vec<Statement<'db>>,
+    pub stmts: Vec<Stmt<'db>>,
 }
 
 #[salsa::tracked(debug)]
-pub struct Statement<'db> {
+pub struct Stmt<'db> {
     pub kind: StmtKind<'db>,
     pub span: Span<'db>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, salsa::Update)]
 pub enum StmtKind<'db> {
-    Definition(Definition<'db>),
+    Def(Def<'db>),
     Import,
 }
 
 #[salsa::tracked(debug)]
-pub struct Definition<'db> {
-    id: DefinitionId<'db>,
+pub struct Def<'db> {
+    id: DefId<'db>,
     kind: DefKind,
 }
 
 #[salsa::interned(debug)]
-pub struct DefinitionId<'db> {
+pub struct DefId<'db> {
     #[returns(ref)]
     pub value: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, salsa::Update)]
 pub enum DefKind {
-    Property,
-    System,
+    Prop,
+    Sys,
 }
 
 // #[salsa::tracked(debug)]

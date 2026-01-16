@@ -1,1 +1,2 @@
-cargo fmt --check
+cargo fmt --check;
+cargo sort -w --check

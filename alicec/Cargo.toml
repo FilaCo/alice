@@ -11,6 +11,7 @@ readme = "README.md"
 
 [dependencies]
 ariadne.workspace = true
+chumsky.workspace = true
 clap = { workspace = true, features = ["derive"] }
 logos.workspace = true
 memmap2.workspace = true
