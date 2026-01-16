@@ -11,5 +11,5 @@ fn main() {
     let src = SourceFile::new(&db, args.input);
     compile::compile(&db, src);
     let diags = compile::compile::accumulated::<Diagnostic>(&db, src);
-    diags.iter().for_each(|&d| d.report());
+    diags.into_iter().for_each(|d| d.report());
 }
