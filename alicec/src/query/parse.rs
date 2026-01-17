@@ -9,18 +9,13 @@ use crate::{
     db::AlicecDbTrait,
     ir::{
         ast::{Ast, Stmt},
+        source::SourceFile,
         token::Token,
     },
 };
 
-const SRC: &str = r"
-prop Foo {
-    bar: int
-}
-";
-
 #[salsa::tracked]
-pub fn parse<'db>(db: &'db dyn AlicecDbTrait) -> Ast<'db> {
+pub fn parse<'db>(db: &'db dyn AlicecDbTrait, src: SourceFile<'db>) -> Ast<'db> {
     todo!()
 }
 

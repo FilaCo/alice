@@ -8,7 +8,7 @@ fn main() {
         args.cake_name,
     );
     let db = AlicecDb::new(config);
-    let src = SourceFile::new(&db, args.input);
+    let src = InputFile::new(&db, args.input);
     compile::compile(&db, src);
     let diags = compile::compile::accumulated::<Diagnostic>(&db, src);
     diags.into_iter().for_each(|d| d.report());

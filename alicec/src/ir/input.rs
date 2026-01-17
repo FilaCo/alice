@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
 #[salsa::input(debug)]
-pub struct SourceFile {
+pub struct InputFile {
     pub path: PathBuf,
 }
