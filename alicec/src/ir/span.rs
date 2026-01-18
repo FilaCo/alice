@@ -7,5 +7,5 @@ pub struct Span<'db> {
     #[tracked]
     pub hi: usize,
     #[tracked]
-    pub fid: SourceFileId<'db>,
+    pub fid: SourceFileId,
 }

@@ -11,4 +11,3 @@ expect-test = { version = "1" }
 logos = { version = "0.16" }
 memmap2 = { version = "0.9" }
 salsa = { version = "0.25" }
-thiserror = { version = "2" }

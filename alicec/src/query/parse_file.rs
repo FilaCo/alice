@@ -15,7 +15,7 @@ use crate::{
 };
 
 #[salsa::tracked]
-pub fn parse<'db>(db: &'db dyn AlicecDbTrait, src: SourceFile<'db>) -> Ast<'db> {
+pub fn parse_file<'db>(db: &'db dyn AlicecDbTrait, src: SourceFile) -> Ast<'db> {
     todo!()
 }
 

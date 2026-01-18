@@ -1,19 +1,12 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 
-#[salsa::tracked(debug)]
-pub struct SourceFileId<'db> {
-    #[tracked]
-    pub value: usize,
-}
+use memmap2::Mmap;
 
-#[salsa::tracked(debug)]
-pub struct SourceFile<'db> {
-    #[tracked]
-    pub id: SourceFileId<'db>,
-    #[tracked]
-    #[returns(ref)]
-    pub path: PathBuf,
-    #[tracked]
-    #[returns(ref)]
-    pub contents: String,
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct SourceFileId(usize);
+
+#[salsa::input]
+pub struct SourceFile {
+    pub id: SourceFileId,
+    contents: Arc<Mmap>,
 }

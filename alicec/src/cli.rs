@@ -1,9 +1,7 @@
 use clap::{Parser, ValueEnum};
 use std::path::PathBuf;
 
-use crate::config::EmitKind;
-
-#[derive(Parser, Debug)]
+#[derive(Parser, Clone, Debug)]
 #[command(version)]
 pub struct Cli {
     /// Input source file
@@ -29,6 +27,15 @@ impl PartialEq for EmitArg {
     fn eq(&self, other: &Self) -> bool {
         self.kind == other.kind
     }
+}
+
+/// Kinds of output `alicec` can emit.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum EmitKind {
+    /// Emit the token stream after lexical analysis.
+    Tokens,
+    /// Emit the abstract syntax tree after parsing.
+    Ast,
 }
 
 /// Parse a string argument for the `--emit` option.

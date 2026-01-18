@@ -1,4 +1,4 @@
-use crate::ir::Span;
+use crate::ir::span::Span;
 
 #[salsa::tracked(debug)]
 pub struct Ast<'db> {

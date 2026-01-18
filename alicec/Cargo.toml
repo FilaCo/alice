@@ -16,7 +16,6 @@ clap = { workspace = true, features = ["derive"] }
 logos.workspace = true
 memmap2.workspace = true
 salsa.workspace = true
-thiserror.workspace = true
 
 [dev-dependencies]
 expect-test.workspace = true
