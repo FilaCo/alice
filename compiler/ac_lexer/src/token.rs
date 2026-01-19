@@ -91,7 +91,7 @@ pub enum LiteralKind {
     Str { terminated: bool },
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Base {
     Bin = 2,
     Oct = 8,

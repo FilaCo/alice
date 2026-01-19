@@ -15,7 +15,10 @@ dependencies = [
 
 [[package]]
 name = "ac_ast"
-version = "0.1.0"
+version = "0.0.0"
+dependencies = [
+ "ac_db",
+]
 
 [[package]]
 name = "ac_db"
@@ -40,13 +43,6 @@ version = "0.0.0"
 dependencies = [
  "ac_db",
  "ac_lexer",
-]
-
-[[package]]
-name = "ac_token"
-version = "0.0.0"
-dependencies = [
- "ac_db",
 ]
 
 [[package]]

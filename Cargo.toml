@@ -7,7 +7,6 @@ ac_ast = { path = "compiler/ac_ast" }
 ac_db = { path = "compiler/ac_db" }
 ac_lexer = { path = "compiler/ac_lexer" }
 ac_parser = { path = "compiler/ac_parser" }
-ac_token = { path = "compiler/ac_token" }
 clap = { version = "4" }
 ctrlc = { version = "3" }
 expect-test = { version = "1" }
