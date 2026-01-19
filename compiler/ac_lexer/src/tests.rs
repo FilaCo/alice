@@ -1,4 +1,9 @@
-use super::*;
+use crate::{
+    cursor::Cursor,
+    token::{Token, TokenKind},
+};
+use TokenKind::*;
+
 use expect_test::{Expect, expect};
 
 impl<'src> Cursor<'src> {

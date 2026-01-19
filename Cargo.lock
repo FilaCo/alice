@@ -14,13 +14,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "ac_lexer"
+name = "ac_db"
 version = "0.1.0"
+
+[[package]]
+name = "ac_lexer"
+version = "0.0.0"
 dependencies = [
  "expect-test",
  "memchr",
  "unicode-xid",
 ]
+
+[[package]]
+name = "ac_parser"
+version = "0.0.0"
 
 [[package]]
 name = "allocator-api2"
