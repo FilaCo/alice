@@ -6,11 +6,11 @@ use TokenKind::*;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Token {
     pub kind: TokenKind,
-    pub len: u32,
+    pub len: usize,
 }
 
 impl Token {
-    pub(crate) fn new(kind: TokenKind, len: u32) -> Self {
+    pub(crate) fn new(kind: TokenKind, len: usize) -> Self {
         Self { kind, len }
     }
 

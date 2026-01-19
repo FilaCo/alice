@@ -54,8 +54,8 @@ impl<'src> Cursor<'src> {
     }
 
     /// Returns amount of already bumped symbols.
-    pub(crate) fn bumped_len(&self) -> u32 {
-        (self.len_remaining - self.chars.as_str().len()) as u32
+    pub(crate) fn bumped_len(&self) -> usize {
+        self.len_remaining - self.chars.as_str().len()
     }
 
     /// Resets the number of bytes consumed to 0.
