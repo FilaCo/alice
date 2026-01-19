@@ -14,8 +14,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "ac_db"
+name = "ac_ast"
 version = "0.1.0"
+
+[[package]]
+name = "ac_db"
+version = "0.0.0"
+dependencies = [
+ "memmap2",
+ "salsa",
+]
 
 [[package]]
 name = "ac_lexer"
@@ -29,6 +37,17 @@ dependencies = [
 [[package]]
 name = "ac_parser"
 version = "0.0.0"
+dependencies = [
+ "ac_db",
+ "ac_lexer",
+]
+
+[[package]]
+name = "ac_token"
+version = "0.0.0"
+dependencies = [
+ "ac_db",
+]
 
 [[package]]
 name = "allocator-api2"
