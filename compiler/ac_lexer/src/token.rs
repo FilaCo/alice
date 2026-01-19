@@ -25,16 +25,19 @@ pub enum TokenKind {
     /// Any whitespace character sequence.
     Whitespace,
 
-    /// A block comment, e.g. `/* comment */`.
-    BlockComment,
-
     /// A line comment, e.g. `// comment`.
     LineComment,
+    /// A block comment, e.g. `/* comment */`.
+    BlockComment {
+        terminated: bool,
+    },
 
     /// An identifier or keyword, e.g. `ident` or `prop`.
     Ident,
 
-    Literal(LiteralKind),
+    Literal {
+        kind: LiteralKind,
+    },
 
     /// `;`
     Semi,
@@ -84,6 +87,14 @@ pub enum TokenKind {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum LiteralKind {
-    Int,
-    Float,
+    Int { base: Base, empty_int: bool },
+    Str { terminated: bool },
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Base {
+    Bin = 2,
+    Oct = 8,
+    Dec = 10,
+    Hex = 16,
 }

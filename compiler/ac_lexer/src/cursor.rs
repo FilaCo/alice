@@ -1,5 +1,7 @@
 use std::str::Chars;
 
+use memchr::memchr;
+
 /// Peekable iterator over a char sequence.
 ///
 /// Next characters can be peeked via `first` method,
@@ -19,34 +21,45 @@ impl<'src> Cursor<'src> {
         }
     }
 
-    /// Moves to the next character.
-    pub(crate) fn bump(&mut self) -> Option<char> {
-        self.chars.next()
-    }
-
-    /// Bumps chars while predicate returns true or until the end of file is reached.
-    fn bump_while(&mut self, predicate: impl Fn(char) -> bool) {
-        while predicate(self.first()) && !self.is_at_eof() {
-            self.bump();
-        }
+    pub(crate) fn as_str(&self) -> &'src str {
+        self.chars.as_str()
     }
 
     /// Peeks the next symbol from the input stream without consuming it.
     /// If requested position doesn't exist, `EOF_CHAR` is returned.
     /// However, getting `EOF_CHAR` doesn't always mean actual end of file,
     /// it should be checked with `is_eof` method.
-    fn first(&self) -> char {
+    pub(crate) fn first(&self) -> char {
         // `.next()` optimizes better than `.nth(0)`
         self.chars.clone().next().unwrap_or(EOF_CHAR)
     }
 
+    /// Moves to the next character.
+    pub(crate) fn bump(&mut self) -> Option<char> {
+        self.chars.next()
+    }
+
+    /// Eats symbols while predicate returns true or until the end of file is reached.
+    pub(crate) fn eat_while(&mut self, predicate: impl Fn(char) -> bool) {
+        while predicate(self.first()) && !self.is_at_eof() {
+            self.bump();
+        }
+    }
+
+    pub(crate) fn eat_until(&mut self, byte: u8) {
+        self.chars = match memchr(byte, self.as_str().as_bytes()) {
+            Some(index) => self.as_str()[index..].chars(),
+            None => "".chars(),
+        }
+    }
+
     /// Returns amount of already bumped symbols.
-    fn bumped_len(&self) -> usize {
-        self.len_remaining - self.chars.as_str().len()
+    pub(crate) fn bumped_len(&self) -> u32 {
+        (self.len_remaining - self.chars.as_str().len()) as u32
     }
 
     /// Resets the number of bytes consumed to 0.
-    fn reset_len_remaining(&mut self) {
+    pub(crate) fn reset_len_remaining(&mut self) {
         self.len_remaining = self.chars.as_str().len();
     }
 
