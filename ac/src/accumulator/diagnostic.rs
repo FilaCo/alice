@@ -1,6 +1,6 @@
 use ariadne::{Report, ReportKind};
 
-use crate::db::AlicecDbTrait;
+use crate::db::AcDbTrait;
 
 #[salsa::accumulator]
 pub struct Diagnostic {
@@ -10,7 +10,7 @@ pub struct Diagnostic {
 }
 
 impl Diagnostic {
-    pub fn report(&self, db: &dyn AlicecDbTrait) {
+    pub fn report(&self, db: &dyn AcDbTrait) {
         // Report::build(self.kind.into(), self.span)
         //     .with_message(&self.msg)
         //     .finish()

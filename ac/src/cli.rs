@@ -8,8 +8,8 @@ pub struct Cli {
     pub input: PathBuf,
     /// Kind of output for the compiler to emit
     /// Each KIND has the default FILE name:
-    /// * tokens   - CAKE_NAME.tok
-    /// * ast      - CAKE_NAME.ast
+    /// * tokens - CAKE_NAME.tok
+    /// * ast    - CAKE_NAME.ast
     #[arg(long, value_name = "KIND[=FILE]", value_parser = parse_emit, verbatim_doc_comment)]
     pub emit: Vec<EmitArg>,
     /// Specify the name of the cake being baked
@@ -29,7 +29,7 @@ impl PartialEq for EmitArg {
     }
 }
 
-/// Kinds of output `alicec` can emit.
+/// Kinds of output `ac` can emit.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 pub enum EmitKind {
     /// Emit the token stream after lexical analysis.

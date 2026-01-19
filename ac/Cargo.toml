@@ -1,5 +1,5 @@
 [package]
-name = "alicec"
+name = "ac"
 version = "0.1.0"
 edition = "2024"
 authors = ["Dmitrii Chizha <me@filaco.dev>"]
@@ -13,9 +13,11 @@ readme = "README.md"
 ariadne.workspace = true
 chumsky.workspace = true
 clap = { workspace = true, features = ["derive"] }
+dashmap.workspace = true
 logos.workspace = true
 memmap2.workspace = true
 salsa.workspace = true
+thiserror.workspace = true
 
 [dev-dependencies]
 expect-test.workspace = true
