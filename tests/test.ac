@@ -1,0 +1,3 @@
+prop Alice {
+    name: str
+}

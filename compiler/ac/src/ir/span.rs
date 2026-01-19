@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use crate::ir::source::SourceFileId;
 
 #[salsa::tracked(debug)]

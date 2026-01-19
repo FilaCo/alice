@@ -10,11 +10,7 @@ categories = ["development-tools::compilers"]
 readme = "README.md"
 
 [dependencies]
-ariadne.workspace = true
-chumsky.workspace = true
 clap = { workspace = true, features = ["derive"] }
-dashmap.workspace = true
-logos.workspace = true
 memmap2.workspace = true
 salsa.workspace = true
 thiserror.workspace = true

@@ -10,5 +10,5 @@ fn main() {
         .expect("unable to get initial source file");
     compile::compile(&db, initial);
     let diags = compile::compile::accumulated::<Diagnostic>(&db, initial);
-    diags.into_iter().for_each(|d| d.report(&db));
+    diags.into_iter().for_each(|d| eprintln!("{d}"));
 }

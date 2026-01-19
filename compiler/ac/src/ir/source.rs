@@ -12,5 +12,5 @@ pub struct SourceFile {
     pub id: SourceFileId,
     #[returns(ref)]
     pub path: PathBuf,
-    handle: Arc<Mmap>,
+    pub handle: Arc<Mmap>,
 }

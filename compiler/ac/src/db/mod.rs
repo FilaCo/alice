@@ -4,13 +4,12 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-use dashmap::{DashMap, Entry};
 use memmap2::Mmap;
 use salsa::{Database, Storage};
 
 use crate::{
     cli::Cli,
-    error::AlicecError,
+    error::AcError,
     ir::source::{SourceFile, SourceFileId},
 };
 
