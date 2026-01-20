@@ -10,10 +10,3 @@ categories = ["development-tools::compilers"]
 readme = "README.md"
 
 [dependencies]
-clap = { workspace = true, features = ["derive"] }
-memmap2.workspace = true
-salsa.workspace = true
-thiserror.workspace = true
-
-[dev-dependencies]
-expect-test.workspace = true

@@ -4,5 +4,8 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-ac_db.workspace = true
+logos.workspace = true
 salsa.workspace = true
+
+[dev-dependencies]
+expect-test.workspace = true
