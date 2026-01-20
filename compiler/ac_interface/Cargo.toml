@@ -1,9 +1,8 @@
 [package]
-name = "ac_parser"
+name = "ac_interface"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-ac_ast.workspace = true
 ac_db.workspace = true
-ac_lexer.workspace = true
+salsa.workspace = true
