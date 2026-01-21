@@ -1,9 +1,29 @@
+use std::ops::Range;
+
+use chumsky::{Parser, input::ValueInput, prelude::end};
 use logos::{Lexer, Logos};
 
 use crate::db::AcDbTrait;
 
 #[salsa::tracked]
-pub fn parse(db: &dyn AcDbTrait) {}
+pub fn parse_file(db: &dyn AcDbTrait) {}
+
+#[salsa::tracked(debug)]
+pub struct Cake<'db> {
+    #[tracked]
+    #[returns(ref)]
+    pub statements: Vec<Statement<'db>>,
+}
+
+#[salsa::tracked(debug)]
+pub struct Statement<'db> {
+    pub kind: StatementKind<'db>,
+    pub span: Span<'db>,
+}
+
+fn parser<'db>(db: &dyn AcDbTrait) -> impl Parser<'db, &'db str, ()> {
+    end()
+}
 
 use Base::*;
 use LiteralKind::*;
@@ -12,6 +32,7 @@ use LiteralKind::*;
 #[logos(skip r"[ \t\n\r]+")]
 #[logos(skip r"//.*")]
 #[logos(subpattern dec_int_lit = r"[0-9][0-9_]*")]
+#[logos(subpattern dec_float_lit = r"(?&dec_int_lit)?\.(?&dec_int_lit)?")]
 enum Token<'src> {
     /// A block comment, e.g. `/* block comment */`.
     ///
@@ -25,7 +46,7 @@ enum Token<'src> {
     Ident(&'src str),
 
     #[regex(r"(?&dec_int_lit)", |lex| Literal { kind: Int { base: Dec }, symbol: lex.slice() })]
-    #[regex(r"(?&dec_int_lit)?\.(?&dec_int_lit)?", |lex| Literal { kind: Float { base: Dec }, symbol: lex.slice() })]
+    #[regex(r"(?&dec_float_lit)", |lex| Literal { kind: Float { base: Dec }, symbol: lex.slice() })]
     Literal(Literal<'src>),
 
     /// `;`
