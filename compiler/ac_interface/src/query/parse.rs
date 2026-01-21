@@ -5,16 +5,28 @@ use crate::db::AcDbTrait;
 #[salsa::tracked]
 pub fn parse(db: &dyn AcDbTrait) {}
 
+use Base::*;
+use LiteralKind::*;
+
 #[derive(Logos, Clone, Copy, Debug, PartialEq, Eq)]
 #[logos(skip r"[ \t\n\r]+")]
 #[logos(skip r"//.*")]
+#[logos(subpattern dec_int_lit = r"[0-9][0-9_]*")]
 enum Token<'src> {
-    /// An identifier or keyword, e.g. `ident` or `prop`.
-    #[regex(r"_|([A-Za-z][A-Za-z0-9_]*)")]
-    Ident(&'src str),
-
+    /// A block comment, e.g. `/* block comment */`.
+    ///
+    /// Block comments can be recursive, so a sequence like `/* /* */`
+    /// will not be considered terminated and will result in a parsing error.
     #[regex(r"/\*", block_comment)]
     BlockComment(BlockCommentTerminated),
+
+    /// An identifier or keyword, e.g. `ident` or `prop`.
+    #[regex(r"[A-Za-z_][A-Za-z0-9_]*")]
+    Ident(&'src str),
+
+    #[regex(r"(?&dec_int_lit)", |lex| Literal { kind: Int { base: Dec }, symbol: lex.slice() })]
+    #[regex(r"(?&dec_int_lit)?\.(?&dec_int_lit)?", |lex| Literal { kind: Float { base: Dec }, symbol: lex.slice() })]
+    Literal(Literal<'src>),
 
     /// `;`
     #[token(";")]
@@ -23,7 +35,7 @@ enum Token<'src> {
     #[token(",")]
     Comma,
     /// `.`
-    #[token(".")]
+    #[token(".", priority = 3)]
     Dot,
     /// `{`
     #[token("{")]
@@ -128,12 +140,34 @@ fn block_comment<'src>(lexer: &mut Lexer<'src, Token<'src>>) -> BlockCommentTerm
     if depth == 0 { Yes } else { No }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct Literal<'src> {
+    pub kind: LiteralKind,
+    pub symbol: &'src str,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum LiteralKind {
+    Int { base: Base },
+    Float { base: Base },
+    Rune { terminated: bool },
+    Str { terminated: bool },
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+enum Base {
+    Bin = 2,
+    Oct = 8,
+    Dec = 10,
+    Hex = 16,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use expect_test::{Expect, expect};
 
-    fn check_lexing(src: &str, expect: Expect) {
+    fn check_lexing(src: &str, expect: &Expect) {
         let tokens = Token::lexer(src)
             .map(|item| match item {
                 Ok(tok) => format!("{:?}\n", tok),
@@ -158,7 +192,7 @@ Slash
 Slash
 "]];
 
-        check_lexing(src, expect);
+        check_lexing(src, &expect);
     }
 
     #[test]
@@ -179,7 +213,6 @@ comment
  * comment
  */
 /* */ */
-/*
 ";
 
         let expect = expect![[r"
@@ -189,9 +222,108 @@ BlockComment(Yes)
 BlockComment(Yes)
 Star
 Slash
-BlockComment(No)
 "]];
 
-        check_lexing(src, expect);
+        check_lexing(src, &expect);
+    }
+
+    #[test]
+    fn test_unterminated_block_comment() {
+        let samples = ["/* /* */", "/*"];
+
+        let expects = [
+            expect![[r"
+BlockComment(No)
+"]],
+            expect![[r"
+BlockComment(No)
+"]],
+        ];
+
+        for (sample, expect) in samples.into_iter().zip(expects.iter()) {
+            check_lexing(sample, expect);
+        }
+    }
+
+    #[test]
+    fn test_ident() {
+        let src = r"
+foo
+_bar
+_
+foo_bar
+1foo123
+32f21b
+fooBar
+FooBar
+Foobar
+";
+        let expect = expect![[r#"
+Ident("foo")
+Ident("_bar")
+Ident("_")
+Ident("foo_bar")
+Literal(Literal { kind: Int { base: Dec }, symbol: "1" })
+Ident("foo123")
+Literal(Literal { kind: Int { base: Dec }, symbol: "32" })
+Ident("f21b")
+Ident("fooBar")
+Ident("FooBar")
+Ident("Foobar")
+"#]];
+
+        check_lexing(src, &expect);
+    }
+
+    #[test]
+    fn test_int_literal() {
+        let src = r"
+42
+4_2
+0600
+0_600
+170141183460469231731687303715884105727
+170_141183_460469_231731_687303_715884_105727
+_42
+42_
+4__2
+";
+        let expect = expect![[r#"
+Literal(Literal { kind: Int { base: Dec }, symbol: "42" })
+Literal(Literal { kind: Int { base: Dec }, symbol: "4_2" })
+Literal(Literal { kind: Int { base: Dec }, symbol: "0600" })
+Literal(Literal { kind: Int { base: Dec }, symbol: "0_600" })
+Literal(Literal { kind: Int { base: Dec }, symbol: "170141183460469231731687303715884105727" })
+Literal(Literal { kind: Int { base: Dec }, symbol: "170_141183_460469_231731_687303_715884_105727" })
+Ident("_42")
+Literal(Literal { kind: Int { base: Dec }, symbol: "42_" })
+Literal(Literal { kind: Int { base: Dec }, symbol: "4__2" })
+"#]];
+
+        check_lexing(src, &expect);
+    }
+
+    #[test]
+    fn test_float_literal() {
+        let src = r"
+.
+0.
+72.40
+072.40
+2.71828
+.25
+1_5.
+";
+        let expect = expect![[r#"
+Dot
+Literal(Literal { kind: Float { base: Dec }, symbol: "0." })
+Literal(Literal { kind: Float { base: Dec }, symbol: "72.40" })
+Literal(Literal { kind: Float { base: Dec }, symbol: "072.40" })
+Literal(Literal { kind: Float { base: Dec }, symbol: "2.71828" })
+Literal(Literal { kind: Float { base: Dec }, symbol: ".25" })
+Literal(Literal { kind: Float { base: Dec }, symbol: "1_5." })
+"#]];
+
+        check_lexing(src, &expect);
     }
 }
