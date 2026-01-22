@@ -1,0 +1,10 @@
+[package]
+name = "ac_parser"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+ac_db.workspace = true
+ac_ir.workspace = true
+chumsky.workspace = true
+salsa.workspace = true

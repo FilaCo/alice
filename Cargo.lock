@@ -7,6 +7,13 @@ name = "ac"
 version = "0.1.0"
 
 [[package]]
+name = "ac_db"
+version = "0.0.0"
+dependencies = [
+ "salsa",
+]
+
+[[package]]
 name = "ac_driver"
 version = "0.0.0"
 dependencies = [
@@ -21,6 +28,23 @@ dependencies = [
  "chumsky",
  "expect-test",
  "logos",
+ "salsa",
+]
+
+[[package]]
+name = "ac_ir"
+version = "0.0.0"
+dependencies = [
+ "salsa",
+]
+
+[[package]]
+name = "ac_parser"
+version = "0.0.0"
+dependencies = [
+ "ac_db",
+ "ac_ir",
+ "chumsky",
  "salsa",
 ]
 
