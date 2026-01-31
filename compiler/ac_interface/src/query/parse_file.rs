@@ -1,11 +1,5 @@
 use std::ops::Range;
 
-use chumsky::{
-    Parser,
-    input::{BorrowInput, ValueInput},
-    prelude::{end, recursive},
-    span::SimpleSpan,
-};
 use logos::{Lexer, Logos};
 
 use crate::db::AcDbTrait;
@@ -13,438 +7,340 @@ use crate::db::AcDbTrait;
 #[salsa::tracked]
 pub fn parse_file(db: &dyn AcDbTrait) {}
 
-#[salsa::tracked(debug)]
-pub struct Cake<'db> {
-    #[tracked]
-    #[returns(ref)]
-    pub statements: Vec<Statement<'db>>,
-}
-
-#[salsa::tracked(debug)]
-pub struct Statement<'db> {
-    #[tracked]
-    pub kind: StatementKind<'db>,
-    #[tracked]
-    pub span: Span<'db>,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, salsa::Update)]
-pub enum StatementKind<'db> {
-    Def(Def<'db>),
-    Expr(Expr<'db>),
-    Include,
-}
-
-#[salsa::tracked(debug)]
-pub struct Def<'db> {}
-
-#[salsa::tracked(debug)]
-pub struct Expr<'db> {
-    #[tracked]
-    pub kind: ExprKind<'db>,
-    #[tracked]
-    pub span: Span<'db>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, salsa::Update)]
-pub enum ExprKind<'db> {
-    Binary(BinaryExpr<'db>),
-    Unary(UnaryExpr<'db>),
-    Grouped(GroupedExpr<'db>),
-}
-
-#[salsa::tracked(debug)]
-pub struct BinaryExpr<'db> {
-    #[tracked]
-    pub lhs: Box<Expr<'db>>,
-    #[tracked]
-    pub op: BinaryOp<'db>,
-    #[tracked]
-    pub rhs: Box<Expr<'db>>,
-}
-
-#[salsa::tracked(debug)]
-pub struct BinaryOp<'db> {
-    #[tracked]
-    pub kind: BinaryOpKind,
-    #[tracked]
-    pub span: Span<'db>,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, salsa::Update)]
-pub enum BinaryOpKind {
-    /// The `+` operator (addition)
-    Add,
-    /// The `-` operator (subtraction)
-    Sub,
-    /// The `*` operator (multiplication)
-    Mul,
-    /// The `/` operator (division)
-    Div,
-}
-
-#[salsa::tracked(debug)]
-pub struct UnaryExpr<'db> {
-    #[tracked]
-    pub op: UnaryOp<'db>,
-    #[tracked]
-    pub expr: Box<Expr<'db>>,
-}
-
-#[salsa::tracked(debug)]
-pub struct UnaryOp<'db> {
-    #[tracked]
-    pub kind: UnaryOpKind,
-    #[tracked]
-    pub span: Span<'db>,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Hash, Eq, salsa::Update)]
-pub enum UnaryOpKind {
-    /// The `-` operator for negation
-    Neg,
-}
-
-#[salsa::tracked(debug)]
-pub struct GroupedExpr<'db> {
-    #[tracked]
-    pub expr: Box<Expr<'db>>,
-}
-
-#[salsa::tracked(debug)]
-pub struct Span<'db> {
-    #[tracked]
-    pub lo: usize,
-    #[tracked]
-    pub hi: usize,
-}
-
-// fn expr_parser<'db, I>(db: &dyn AcDbTrait) -> impl Parser<'db, I, Expr<'db>>
-// where
-//     I: ValueInput<'db, Token = Token<'db>, Span = SimpleSpan>,
-// {
+// #[salsa::tracked(debug)]
+// pub struct Span<'db> {
+//     #[tracked]
+//     pub lo: usize,
+//     #[tracked]
+//     pub hi: usize,
 // }
 
-use Base::*;
-use LiteralKind::*;
+// // fn expr_parser<'db, I>(db: &dyn AcDbTrait) -> impl Parser<'db, I, Expr<'db>>
+// // where
+// //     I: ValueInput<'db, Token = Token<'db>, Span = SimpleSpan>,
+// // {
+// // }
 
-#[derive(Logos, Clone, Copy, Debug, PartialEq, Eq)]
-#[logos(skip r"[ \t\n\r]+")]
-#[logos(skip r"//.*")]
-#[logos(subpattern dec_int_lit = r"[0-9][0-9_]*")]
-#[logos(subpattern dec_float_lit = r"(?&dec_int_lit)?\.(?&dec_int_lit)?")]
-enum Token<'src> {
-    /// A block comment, e.g. `/* block comment */`.
-    ///
-    /// Block comments can be recursive, so a sequence like `/* /* */`
-    /// will not be considered terminated and will result in a parsing error.
-    #[regex(r"/\*", block_comment)]
-    BlockComment(BlockCommentTerminated),
+// use Base::*;
+// use LiteralKind::*;
 
-    /// An identifier or keyword, e.g. `ident` or `prop`.
-    #[regex(r"[A-Za-z_][A-Za-z0-9_]*")]
-    Ident(&'src str),
+// #[derive(Logos, Clone, Copy, Debug, PartialEq, Eq)]
+// #[logos(skip r"[ \t\n\r]+")]
+// #[logos(skip r"//.*")]
+// #[logos(subpattern dec_int_lit = r"[0-9][0-9_]*")]
+// #[logos(subpattern dec_float_lit = r"(?&dec_int_lit)?\.(?&dec_int_lit)?")]
+// enum Token<'src> {
+//     /// A block comment, e.g. `/* block comment */`.
+//     ///
+//     /// Block comments can be recursive, so a sequence like `/* /* */`
+//     /// will not be considered terminated and will result in a parsing error.
+//     #[regex(r"/\*", block_comment)]
+//     BlockComment(BlockCommentTerminated),
 
-    #[regex(r"(?&dec_int_lit)", |lex| Literal { kind: Int { base: Dec }, symbol: lex.slice() })]
-    #[regex(r"(?&dec_float_lit)", |lex| Literal { kind: Float { base: Dec }, symbol: lex.slice() })]
-    Literal(Literal<'src>),
+//     /// An identifier or keyword, e.g. `ident` or `prop`.
+//     #[regex(r"[A-Za-z_][A-Za-z0-9_]*")]
+//     Ident(&'src str),
 
-    /// `;`
-    #[token(";")]
-    Semi,
-    /// `,`
-    #[token(",")]
-    Comma,
-    /// `.`
-    #[token(".", priority = 3)]
-    Dot,
-    /// `{`
-    #[token("{")]
-    LBrace,
-    /// `}`
-    #[token("}")]
-    RBrace,
-    /// `[`
-    #[token("[")]
-    LBracket,
-    /// `]`
-    #[token("]")]
-    RBracket,
-    /// `(``
-    #[token("(")]
-    LParen,
-    /// `)`
-    #[token(")")]
-    RParen,
-    /// `:`
-    #[token(":")]
-    Colon,
-    /// `=`
-    #[token("=")]
-    Eq,
-    /// `!`
-    #[token("!")]
-    Ex,
-    /// `<`
-    #[token("<")]
-    Lt,
-    /// `>`
-    #[token(">")]
-    Gt,
-    /// `-`
-    #[token("-")]
-    Minus,
-    /// `+`
-    #[token("+")]
-    Plus,
-    /// `*`
-    #[token("*")]
-    Star,
-    /// `/`
-    #[token("/")]
-    Slash,
+//     #[regex(r"(?&dec_int_lit)", |lex| Literal { kind: Int { base: Dec }, symbol: lex.slice() })]
+//     #[regex(r"(?&dec_float_lit)", |lex| Literal { kind: Float { base: Dec }, symbol: lex.slice() })]
+//     Literal(Literal<'src>),
 
-    /// `==`
-    #[token("==")]
-    EqEq,
-    /// `!=`
-    #[token("!=")]
-    Ne,
-    /// `<=`
-    #[token("<=")]
-    Le,
-    /// `>=`
-    #[token(">=")]
-    Ge,
+//     /// `;`
+//     #[token(";")]
+//     Semi,
+//     /// `,`
+//     #[token(",")]
+//     Comma,
+//     /// `.`
+//     #[token(".", priority = 3)]
+//     Dot,
+//     /// `{`
+//     #[token("{")]
+//     LBrace,
+//     /// `}`
+//     #[token("}")]
+//     RBrace,
+//     /// `[`
+//     #[token("[")]
+//     LBracket,
+//     /// `]`
+//     #[token("]")]
+//     RBracket,
+//     /// `(``
+//     #[token("(")]
+//     LParen,
+//     /// `)`
+//     #[token(")")]
+//     RParen,
+//     /// `:`
+//     #[token(":")]
+//     Colon,
+//     /// `=`
+//     #[token("=")]
+//     Eq,
+//     /// `!`
+//     #[token("!")]
+//     Ex,
+//     /// `<`
+//     #[token("<")]
+//     Lt,
+//     /// `>`
+//     #[token(">")]
+//     Gt,
+//     /// `-`
+//     #[token("-")]
+//     Minus,
+//     /// `+`
+//     #[token("+")]
+//     Plus,
+//     /// `*`
+//     #[token("*")]
+//     Star,
+//     /// `/`
+//     #[token("/")]
+//     Slash,
 
-    /// Unknown token, not expected by the lexer, e.g. "№"
-    Unknown,
-}
+//     /// `==`
+//     #[token("==")]
+//     EqEq,
+//     /// `!=`
+//     #[token("!=")]
+//     Ne,
+//     /// `<=`
+//     #[token("<=")]
+//     Le,
+//     /// `>=`
+//     #[token(">=")]
+//     Ge,
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-enum BlockCommentTerminated {
-    No,
-    Yes,
-}
+//     /// Unknown token, not expected by the lexer, e.g. "№"
+//     Unknown,
+// }
 
-fn block_comment<'src>(lexer: &mut Lexer<'src, Token<'src>>) -> BlockCommentTerminated {
-    use BlockCommentTerminated::*;
+// #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+// enum BlockCommentTerminated {
+//     No,
+//     Yes,
+// }
 
-    let mut depth = 1usize;
-    let mut bump_bytes = 0;
-    let mut src = lexer.remainder().chars().peekable();
-    while let Some(c) = src.next() {
-        bump_bytes += 1;
-        match c {
-            '/' if src.peek().is_some_and(|v| *v == '*') => {
-                src.next();
-                bump_bytes += 1;
-                depth += 1;
-            }
-            '*' if src.peek().is_some_and(|v| *v == '/') => {
-                src.next();
-                bump_bytes += 1;
-                depth -= 1;
+// fn block_comment<'src>(lexer: &mut Lexer<'src, Token<'src>>) -> BlockCommentTerminated {
+//     use BlockCommentTerminated::*;
 
-                if depth == 0 {
-                    // This block comment is closed, so for a construction like "/* */ */"
-                    // there will be a successfully parsed block comment "/* */"
-                    // and " */" will be processed separately.
-                    break;
-                }
-            }
-            _ => (),
-        }
-    }
-    lexer.bump(bump_bytes);
+//     let mut depth = 1usize;
+//     let mut bump_bytes = 0;
+//     let mut src = lexer.remainder().chars().peekable();
+//     while let Some(c) = src.next() {
+//         bump_bytes += 1;
+//         match c {
+//             '/' if src.peek().is_some_and(|v| *v == '*') => {
+//                 src.next();
+//                 bump_bytes += 1;
+//                 depth += 1;
+//             }
+//             '*' if src.peek().is_some_and(|v| *v == '/') => {
+//                 src.next();
+//                 bump_bytes += 1;
+//                 depth -= 1;
 
-    if depth == 0 { Yes } else { No }
-}
+//                 if depth == 0 {
+//                     // This block comment is closed, so for a construction like "/* */ */"
+//                     // there will be a successfully parsed block comment "/* */"
+//                     // and " */" will be processed separately.
+//                     break;
+//                 }
+//             }
+//             _ => (),
+//         }
+//     }
+//     lexer.bump(bump_bytes);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct Literal<'src> {
-    pub kind: LiteralKind,
-    pub symbol: &'src str,
-}
+//     if depth == 0 { Yes } else { No }
+// }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum LiteralKind {
-    Int { base: Base },
-    Float { base: Base },
-    Rune { terminated: bool },
-    Str { terminated: bool },
-}
+// #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+// struct Literal<'src> {
+//     pub kind: LiteralKind,
+//     pub symbol: &'src str,
+// }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-enum Base {
-    Bin = 2,
-    Oct = 8,
-    Dec = 10,
-    Hex = 16,
-}
+// #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+// enum LiteralKind {
+//     Int { base: Base },
+//     Float { base: Base },
+//     Rune { terminated: bool },
+//     Str { terminated: bool },
+// }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use expect_test::{Expect, expect};
+// #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+// enum Base {
+//     Bin = 2,
+//     Oct = 8,
+//     Dec = 10,
+//     Hex = 16,
+// }
 
-    fn check_lexing(src: &str, expect: &Expect) {
-        let tokens = Token::lexer(src)
-            .map(|item| match item {
-                Ok(tok) => format!("{:?}\n", tok),
-                Err(_) => format!("{:?}\n", Token::Unknown),
-            })
-            .collect::<String>();
-        expect.assert_eq(&tokens);
-    }
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     use expect_test::{Expect, expect};
 
-    #[test]
-    fn test_line_comment() {
-        // arrange
-        let src = r"
-// This is a line comment
-// Another line comment
-//
-/  /
-";
+//     fn check_lexing(src: &str, expect: &Expect) {
+//         let tokens = Token::lexer(src)
+//             .map(|item| match item {
+//                 Ok(tok) => format!("{:?}\n", tok),
+//                 Err(_) => format!("{:?}\n", Token::Unknown),
+//             })
+//             .collect::<String>();
+//         expect.assert_eq(&tokens);
+//     }
 
-        let expect = expect![[r"
-Slash
-Slash
-"]];
+//     #[test]
+//     fn test_line_comment() {
+//         // arrange
+//         let src = r"
+// // This is a line comment
+// // Another line comment
+// //
+// /  /
+// ";
 
-        check_lexing(src, &expect);
-    }
+//         let expect = expect![[r"
+// Slash
+// Slash
+// "]];
 
-    #[test]
-    fn test_block_comment() {
-        // arrange
-        let src = r"
-/* This is a block comment */
-/*
-Multi
-line
-block
-comment
-*/
-/*
- * Another
- * multiline
- * block
- * comment
- */
-/* */ */
-";
+//         check_lexing(src, &expect);
+//     }
 
-        let expect = expect![[r"
-BlockComment(Yes)
-BlockComment(Yes)
-BlockComment(Yes)
-BlockComment(Yes)
-Star
-Slash
-"]];
+//     #[test]
+//     fn test_block_comment() {
+//         // arrange
+//         let src = r"
+// /* This is a block comment */
+// /*
+// Multi
+// line
+// block
+// comment
+// */
+// /*
+//  * Another
+//  * multiline
+//  * block
+//  * comment
+//  */
+// /* */ */
+// ";
 
-        check_lexing(src, &expect);
-    }
+//         let expect = expect![[r"
+// BlockComment(Yes)
+// BlockComment(Yes)
+// BlockComment(Yes)
+// BlockComment(Yes)
+// Star
+// Slash
+// "]];
 
-    #[test]
-    fn test_unterminated_block_comment() {
-        let samples = ["/* /* */", "/*"];
+//         check_lexing(src, &expect);
+//     }
 
-        let expects = [
-            expect![[r"
-BlockComment(No)
-"]],
-            expect![[r"
-BlockComment(No)
-"]],
-        ];
+//     #[test]
+//     fn test_unterminated_block_comment() {
+//         let samples = ["/* /* */", "/*"];
 
-        for (sample, expect) in samples.into_iter().zip(expects.iter()) {
-            check_lexing(sample, expect);
-        }
-    }
+//         let expects = [
+//             expect![[r"
+// BlockComment(No)
+// "]],
+//             expect![[r"
+// BlockComment(No)
+// "]],
+//         ];
 
-    #[test]
-    fn test_ident() {
-        let src = r"
-foo
-_bar
-_
-foo_bar
-1foo123
-32f21b
-fooBar
-FooBar
-Foobar
-";
-        let expect = expect![[r#"
-Ident("foo")
-Ident("_bar")
-Ident("_")
-Ident("foo_bar")
-Literal(Literal { kind: Int { base: Dec }, symbol: "1" })
-Ident("foo123")
-Literal(Literal { kind: Int { base: Dec }, symbol: "32" })
-Ident("f21b")
-Ident("fooBar")
-Ident("FooBar")
-Ident("Foobar")
-"#]];
+//         for (sample, expect) in samples.into_iter().zip(expects.iter()) {
+//             check_lexing(sample, expect);
+//         }
+//     }
 
-        check_lexing(src, &expect);
-    }
+//     #[test]
+//     fn test_ident() {
+//         let src = r"
+// foo
+// _bar
+// _
+// foo_bar
+// 1foo123
+// 32f21b
+// fooBar
+// FooBar
+// Foobar
+// ";
+//         let expect = expect![[r#"
+// Ident("foo")
+// Ident("_bar")
+// Ident("_")
+// Ident("foo_bar")
+// Literal(Literal { kind: Int { base: Dec }, symbol: "1" })
+// Ident("foo123")
+// Literal(Literal { kind: Int { base: Dec }, symbol: "32" })
+// Ident("f21b")
+// Ident("fooBar")
+// Ident("FooBar")
+// Ident("Foobar")
+// "#]];
 
-    #[test]
-    fn test_int_literal() {
-        let src = r"
-42
-4_2
-0600
-0_600
-170141183460469231731687303715884105727
-170_141183_460469_231731_687303_715884_105727
-_42
-42_
-4__2
-";
-        let expect = expect![[r#"
-Literal(Literal { kind: Int { base: Dec }, symbol: "42" })
-Literal(Literal { kind: Int { base: Dec }, symbol: "4_2" })
-Literal(Literal { kind: Int { base: Dec }, symbol: "0600" })
-Literal(Literal { kind: Int { base: Dec }, symbol: "0_600" })
-Literal(Literal { kind: Int { base: Dec }, symbol: "170141183460469231731687303715884105727" })
-Literal(Literal { kind: Int { base: Dec }, symbol: "170_141183_460469_231731_687303_715884_105727" })
-Ident("_42")
-Literal(Literal { kind: Int { base: Dec }, symbol: "42_" })
-Literal(Literal { kind: Int { base: Dec }, symbol: "4__2" })
-"#]];
+//         check_lexing(src, &expect);
+//     }
 
-        check_lexing(src, &expect);
-    }
+//     #[test]
+//     fn test_int_literal() {
+//         let src = r"
+// 42
+// 4_2
+// 0600
+// 0_600
+// 170141183460469231731687303715884105727
+// 170_141183_460469_231731_687303_715884_105727
+// _42
+// 42_
+// 4__2
+// ";
+//         let expect = expect![[r#"
+// Literal(Literal { kind: Int { base: Dec }, symbol: "42" })
+// Literal(Literal { kind: Int { base: Dec }, symbol: "4_2" })
+// Literal(Literal { kind: Int { base: Dec }, symbol: "0600" })
+// Literal(Literal { kind: Int { base: Dec }, symbol: "0_600" })
+// Literal(Literal { kind: Int { base: Dec }, symbol: "170141183460469231731687303715884105727" })
+// Literal(Literal { kind: Int { base: Dec }, symbol: "170_141183_460469_231731_687303_715884_105727" })
+// Ident("_42")
+// Literal(Literal { kind: Int { base: Dec }, symbol: "42_" })
+// Literal(Literal { kind: Int { base: Dec }, symbol: "4__2" })
+// "#]];
 
-    #[test]
-    fn test_float_literal() {
-        let src = r"
-.
-0.
-72.40
-072.40
-2.71828
-.25
-1_5.
-";
-        let expect = expect![[r#"
-Dot
-Literal(Literal { kind: Float { base: Dec }, symbol: "0." })
-Literal(Literal { kind: Float { base: Dec }, symbol: "72.40" })
-Literal(Literal { kind: Float { base: Dec }, symbol: "072.40" })
-Literal(Literal { kind: Float { base: Dec }, symbol: "2.71828" })
-Literal(Literal { kind: Float { base: Dec }, symbol: ".25" })
-Literal(Literal { kind: Float { base: Dec }, symbol: "1_5." })
-"#]];
+//         check_lexing(src, &expect);
+//     }
 
-        check_lexing(src, &expect);
-    }
-}
+//     #[test]
+//     fn test_float_literal() {
+//         let src = r"
+// .
+// 0.
+// 72.40
+// 072.40
+// 2.71828
+// .25
+// 1_5.
+// ";
+//         let expect = expect![[r#"
+// Dot
+// Literal(Literal { kind: Float { base: Dec }, symbol: "0." })
+// Literal(Literal { kind: Float { base: Dec }, symbol: "72.40" })
+// Literal(Literal { kind: Float { base: Dec }, symbol: "072.40" })
+// Literal(Literal { kind: Float { base: Dec }, symbol: "2.71828" })
+// Literal(Literal { kind: Float { base: Dec }, symbol: ".25" })
+// Literal(Literal { kind: Float { base: Dec }, symbol: "1_5." })
+// "#]];
+
+//         check_lexing(src, &expect);
+//     }
+// }
