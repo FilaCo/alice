@@ -2,6 +2,7 @@ mod token;
 
 use std::{ops::Range, str::Chars};
 
+use ac_lexer::Cursor;
 pub use token::*;
 
 pub type Span = Range<u32>;
@@ -9,19 +10,17 @@ pub type Spanned<T> = (T, Span);
 const DUMMY_SPAN: Span = 0..0;
 
 pub struct Lexer<'src> {
-    src: &'src str,
-    cursor: Chars<'src>,
+    cursor: Cursor<'src>,
     pos: usize,
-    cur: Spanned<Token<'src>>,
+    token: Spanned<Token<'src>>,
 }
 
 impl<'src> Lexer<'src> {
-    pub fn new(src: &'src str) -> Self {
+    pub fn new(input: &'src str) -> Self {
         Self {
-            src,
-            cursor: src.chars(),
+            cursor: Cursor::new(input),
             pos: 0,
-            cur: Token::dummy(),
+            token: Token::dummy(),
         }
     }
 

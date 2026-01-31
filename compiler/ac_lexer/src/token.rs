@@ -1,24 +1,29 @@
+/// Parsed token.
+/// It doesn't contain information about data that has been parsed,
+/// only the type of the token and its size.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Token<'src> {
-    /* Expression-operator symbols */
+pub struct Token {
+    pub kind: TokenKind,
+    pub len: u32,
+}
+
+/// Enum representing common lexeme types.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TokenKind {
+    /// Any whitespace character sequence.
+    Whitespace,
+
+    /// A line comment, e.g. `// comment`.
+    LineComment,
+    /// A block comment, e.g. `/* comment */`.
+    BlockComment { terminated: bool },
+
     /// `=`
     Eq,
     /// `<`
     Lt,
-    /// `<=`
-    Le,
-    /// `==`
-    EqEq,
-    /// `!=`
-    Ne,
-    /// `>=`
-    Ge,
     /// `>`
     Gt,
-    /// `&&`
-    AndAnd,
-    /// `||`
-    OrOr,
     /// `!`
     Bang,
     /// `~`
@@ -39,56 +44,16 @@ pub enum Token<'src> {
     And,
     /// `|`
     Or,
-    /// `<<`
-    Shl,
-    /// `>>`
-    Shr,
-    /// `+=`
-    PlusEq,
-    /// `-=`
-    MinusEq,
-    /// `*=`
-    StarEq,
-    /// `/=`
-    SlashEq,
-    /// `%=`
-    PercentEq,
-    /// `^=`
-    CaretEq,
-    /// `&=`
-    AndEq,
-    /// `|=`
-    OrEq,
-    /// `<<=`
-    ShlEq,
-    /// `>>=`
-    ShrEq,
-
-    /* Structural symbols */
     /// `@`
     At,
     /// `.`
     Dot,
-    /// `..`
-    DotDot,
-    /// `...`
-    DotDotDot,
-    /// `..=`
-    DotDotEq,
     /// `,`
     Comma,
     /// `;`
     Semi,
     /// `:`
     Colon,
-    /// `::`
-    PathSep,
-    /// `->`
-    RArrow,
-    /// `<-`
-    LArrow,
-    /// `=>`
-    FatArrow,
     /// `#`
     Hash,
     /// `$`
@@ -109,10 +74,10 @@ pub enum Token<'src> {
     RBracket,
 
     /// An identifier or keyword, e.g. `ident` or `prop`.
-    Ident { sym: &'src str },
+    Ident,
 
     /// A literal, e.g. `123` or `"hello"`.
-    Literal { kind: LiteralKind, sym: &'src str },
+    Literal { kind: LiteralKind },
 
     /// Unknown token, not expected by the lexer, e.g. "№".
     Unknown,
@@ -121,11 +86,7 @@ pub enum Token<'src> {
     Eof,
 }
 
-impl Token<'_> {
-    pub fn glue(&self, joint: &Token) {}
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, salsa::Update)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum LiteralKind {
     Int,
     Str { terminated: bool },
