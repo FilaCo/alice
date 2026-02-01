@@ -1,11 +1,11 @@
-use crate::lexer::{Lexer, Spanned, Token};
+use crate::lexer::{Lexer, Token};
 use ac_db::db::AcDbTrait;
 
 pub struct Parser<'db> {
     db: &'db dyn AcDbTrait,
     lexer: Lexer<'db>,
-    cur: Spanned<Token<'db>>,
-    prev: Spanned<Token<'db>>,
+    cur: Token<'db>,
+    prev: Token<'db>,
 }
 
 impl<'db> Parser<'db> {

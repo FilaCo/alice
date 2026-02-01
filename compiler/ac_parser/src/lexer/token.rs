@@ -1,5 +1,18 @@
+use std::ops::Range;
+
+use ac_ir::value::Symbol;
+
+pub type Span = Range<u32>;
+const DUMMY_SPAN: Span = 0..0;
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Token<'db> {
+    pub kind: TokenKind<'db>,
+    pub span: Span,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Token<'src> {
+pub enum TokenKind<'db> {
     /* Expression-operator symbols */
     /// `=`
     Eq,
@@ -109,10 +122,10 @@ pub enum Token<'src> {
     RBracket,
 
     /// An identifier or keyword, e.g. `ident` or `prop`.
-    Ident { sym: &'src str },
+    Ident { sym: Symbol<'db> },
 
     /// A literal, e.g. `123` or `"hello"`.
-    Literal { kind: LiteralKind, sym: &'src str },
+    Literal { kind: LiteralKind, sym: Symbol<'db> },
 
     /// Unknown token, not expected by the lexer, e.g. "№".
     Unknown,
@@ -121,8 +134,17 @@ pub enum Token<'src> {
     Eof,
 }
 
-impl Token<'_> {
-    pub fn glue(&self, joint: &Token) {}
+impl<'db> Token<'db> {
+    pub const fn dummy() -> Self {
+        Self {
+            kind: TokenKind::Question,
+            span: DUMMY_SPAN,
+        }
+    }
+
+    pub fn glue(&self, joint: &Token) -> Option<Token<'_>> {
+        None
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, salsa::Update)]

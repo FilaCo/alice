@@ -47,7 +47,7 @@ impl<'db> Parser<'db> {
     }
 
     /// ```ebnf
-    /// Primary = Literal | "(" Expr ")" .
+    /// Primary = Literal | Grouped .
     /// ```
     fn primary(&mut self) -> Expr<'db> {
         todo!()
