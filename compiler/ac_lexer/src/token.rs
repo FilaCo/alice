@@ -89,5 +89,7 @@ pub enum TokenKind {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum LiteralKind {
     Int,
+    Float,
+    Rune { terminated: bool },
     Str { terminated: bool },
 }

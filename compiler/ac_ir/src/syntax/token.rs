@@ -1,9 +1,9 @@
-use crate::{span::Span, syntax::value::Symbol};
+use crate::syntax::value::Symbol;
 
 #[salsa::tracked(debug)]
 pub struct Token<'db> {
     pub kind: TokenKind<'db>,
-    pub span: Span<'db>,
+    // pub span: Span<'db>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, salsa::Update)]

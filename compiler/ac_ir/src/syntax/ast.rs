@@ -1,5 +1,3 @@
-use crate::span::Span;
-
 #[salsa::tracked(debug)]
 pub struct Cake<'db> {
     #[tracked]
@@ -11,8 +9,8 @@ pub struct Cake<'db> {
 pub struct Stmt<'db> {
     #[tracked]
     pub kind: StmtKind<'db>,
-    #[tracked]
-    pub span: Span<'db>,
+    // #[tracked]
+    // pub span: Span<'db>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, salsa::Update)]
@@ -29,8 +27,8 @@ pub struct Def<'db> {}
 pub struct Expr<'db> {
     #[tracked]
     pub kind: ExprKind<'db>,
-    #[tracked]
-    pub span: Span<'db>,
+    // #[tracked]
+    // pub span: Span<'db>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, salsa::Update)]
@@ -54,8 +52,8 @@ pub struct BinaryExpr<'db> {
 pub struct BinaryOp<'db> {
     #[tracked]
     pub kind: BinaryOpKind,
-    #[tracked]
-    pub span: Span<'db>,
+    // #[tracked]
+    // pub span: Span<'db>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, salsa::Update)]
@@ -82,8 +80,8 @@ pub struct UnaryExpr<'db> {
 pub struct UnaryOp<'db> {
     #[tracked]
     pub kind: UnaryOpKind,
-    #[tracked]
-    pub span: Span<'db>,
+    // #[tracked]
+    // pub span: Span<'db>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Hash, Eq, salsa::Update)]

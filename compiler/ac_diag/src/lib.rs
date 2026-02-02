@@ -1,3 +1,1 @@
-mod diag;
-
-pub use diag::*;
+pub mod diagnostic;

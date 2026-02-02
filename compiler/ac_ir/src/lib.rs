@@ -1,3 +1,2 @@
-pub mod source;
-pub mod span;
+pub mod input;
 pub mod syntax;

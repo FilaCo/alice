@@ -10,3 +10,8 @@ categories = ["development-tools::compilers"]
 readme = "README.md"
 
 [dependencies]
+ac_db.workspace = true
+ac_diag.workspace = true
+ac_interface.workspace = true
+ac_query.workspace = true
+clap = { workspace = true, features = ["derive"] }

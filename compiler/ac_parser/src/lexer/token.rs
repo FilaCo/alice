@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use ac_ir::value::Symbol;
+use ac_ir::syntax::value::Symbol;
 
 pub type Span = Range<u32>;
 const DUMMY_SPAN: Span = 0..0;
