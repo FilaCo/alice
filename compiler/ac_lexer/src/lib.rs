@@ -11,7 +11,7 @@ use TokenKind::*;
 use unicode_xid::UnicodeXID;
 
 impl Cursor<'_> {
-    pub fn next(&mut self) -> Token {
+    pub fn cook(&mut self) -> Token {
         let Some(first_char) = self.bump() else {
             return Token { kind: Eof, len: 0 };
         };
@@ -131,12 +131,6 @@ impl Cursor<'_> {
         self.eat_while(is_id_continue);
 
         Ident
-    }
-
-    fn num(&mut self, first_digit: char) -> LiteralKind {
-        self.eat_digits();
-
-        Int
     }
 
     fn str(&mut self) -> bool {

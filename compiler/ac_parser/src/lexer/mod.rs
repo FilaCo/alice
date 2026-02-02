@@ -6,7 +6,7 @@ use ac_lexer::Cursor;
 
 pub struct Lexer<'src> {
     cursor: Cursor<'src>,
-    pos: usize,
+    pos: u32,
     token: Token<'src>,
 }
 
@@ -20,6 +20,10 @@ impl<'src> Lexer<'src> {
     }
 
     pub fn cook(&mut self) -> Token<'src> {
+        todo!()
+    }
+
+    fn next_token_from_cursor(&mut self) -> Token<'src> {
         todo!()
     }
 }

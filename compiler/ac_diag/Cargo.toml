@@ -1,0 +1,8 @@
+[package]
+name = "ac_diag"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+ariadne.workspace = true
+salsa.workspace = true

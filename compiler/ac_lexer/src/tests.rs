@@ -3,16 +3,12 @@ use expect_test::{Expect, expect};
 
 impl<'src> Cursor<'src> {
     pub fn tokenize(input: &'src str) -> impl Iterator<Item = Token> {
-        let mut cursor = Self::new(input);
+        let mut lexer = Self::new(input);
 
         std::iter::from_fn(move || {
-            let lexeme = cursor.next();
+            let tok = lexer.cook();
 
-            if lexeme.kind != Eof {
-                Some(lexeme)
-            } else {
-                None
-            }
+            if tok.kind != Eof { Some(tok) } else { None }
         })
     }
 }
