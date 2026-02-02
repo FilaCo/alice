@@ -24,6 +24,7 @@ impl<'src> Lexer<'src> {
     }
 
     fn next_token_from_cursor(&mut self) -> Token<'src> {
+        let mut token = self.cursor.next_token();
         todo!()
     }
 }

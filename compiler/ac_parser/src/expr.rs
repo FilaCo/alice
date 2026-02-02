@@ -1,4 +1,4 @@
-use ac_ir::ast::Expr;
+use ac_ir::syntax::ast::Expr;
 
 use crate::parser::Parser;
 

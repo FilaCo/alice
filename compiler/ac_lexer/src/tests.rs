@@ -6,7 +6,7 @@ impl<'src> Cursor<'src> {
         let mut lexer = Self::new(input);
 
         std::iter::from_fn(move || {
-            let tok = lexer.cook();
+            let tok = lexer.next_token();
 
             if tok.kind != Eof { Some(tok) } else { None }
         })
