@@ -136,3 +136,5 @@ pub enum LiteralKind {
     Rune { terminated: bool },
     Str { terminated: bool },
 }
+
+pub enum Base {}

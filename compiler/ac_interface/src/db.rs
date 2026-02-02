@@ -1,6 +1,5 @@
-use std::path::Path;
-
 use ac_db::db::AcDbTrait;
+use ac_error::AcResult;
 use ac_ir::input::SourceFile;
 use salsa::Storage;
 
@@ -24,8 +23,9 @@ impl From<Config> for AcDb {
 
 #[salsa::db]
 impl AcDbTrait for AcDb {
-    fn input(&self) -> SourceFile {
-        todo!()
+    fn input(&self) -> AcResult<SourceFile> {
+        let content = std::fs::read_to_string(&self.cfg.input)?;
+        Ok(SourceFile::new(self, content))
     }
 }
 

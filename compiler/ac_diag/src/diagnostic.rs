@@ -1,19 +1,10 @@
-use ariadne::Report;
-
 #[salsa::accumulator]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Diagnostic {
-    kind: DiagnosticKind,
+    pub kind: DiagnosticKind,
 }
 
-impl Diagnostic {
-    pub fn report(self) {
-        // let report = Report::build(ReportKind::from(self.kind));
-        todo!()
-    }
-}
-
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum DiagnosticKind {
     Error,
     Warning,

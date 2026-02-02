@@ -5,6 +5,7 @@ members = ["compiler/*"]
 [workspace.dependencies]
 ac_db = { path = "compiler/ac_db" }
 ac_diag = { path = "compiler/ac_diag" }
+ac_error = { path = "compiler/ac_error" }
 ac_interface = { path = "compiler/ac_interface" }
 ac_ir = { path = "compiler/ac_ir" }
 ac_lexer = { path = "compiler/ac_lexer" }
