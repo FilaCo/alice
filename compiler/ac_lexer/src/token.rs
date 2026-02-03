@@ -10,13 +10,24 @@ pub struct Token {
 /// Enum representing common lexeme types.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TokenKind {
-    /// Any whitespace character sequence.
+    /* Hidden lexical rules */
+    /// ```ebnf
+    /// Whitespace = <SPACE U+0020> | <TAB U+0009> | <Form Feed U+000C>
+    /// ```
     Whitespace,
-
-    /// A line comment, e.g. `// comment`.
-    LineComment,
-    /// A block comment, e.g. `/* comment */`.
+    /// ```ebnf
+    /// BlockComment = "/*" { BlockComment | <any character> } "*/"
+    /// ```
     BlockComment { terminated: bool },
+    /// ```ebnf
+    /// LineComment  = "//" { <any character except NL> }
+    /// ```
+    LineComment,
+
+    /// ```ebnf
+    /// NewLine = <Line Feed U+000A> | (<Carriage Return U+000D> [<Line Feed U+000A>>])
+    /// ```
+    NewLine,
 
     /// `=`
     Eq,
@@ -25,9 +36,7 @@ pub enum TokenKind {
     /// `>`
     Gt,
     /// `!`
-    Bang,
-    /// `~`
-    Tilde,
+    Excl,
     /// `+`
     Plus,
     /// `-`
@@ -36,16 +45,6 @@ pub enum TokenKind {
     Star,
     /// `/`
     Slash,
-    /// `%`
-    Percent,
-    /// `^`
-    Caret,
-    /// `&`
-    And,
-    /// `|`
-    Or,
-    /// `@`
-    At,
     /// `.`
     Dot,
     /// `,`
@@ -56,10 +55,8 @@ pub enum TokenKind {
     Colon,
     /// `#`
     Hash,
-    /// `$`
-    Dollar,
     /// `?`
-    Question,
+    Quest,
     /// `(`
     LParen,
     /// `)`
