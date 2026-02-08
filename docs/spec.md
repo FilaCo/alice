@@ -24,13 +24,13 @@ TBD
 #### 1.2.1 Whitespace and comments
 
 ```ebnf
-LineFeed        = /* the Unicode code point Line Feed U+000A */
-CarriageReturn  = /* the Unicode code point Carriage Return U+000D */
-NewLine         = LF | (CR [LF])
-BlockComment    = "/*" { BlockComment | <any character> } "*/"
-LineComment     = "//" { <any character except NL> }
-Whitespace      = <one of the following characters: SPACE U+0020, TAB U+0009, Form Feed U+000C>
-Hidden          = BlockComment | LineComment | WS
+LF           = /* the Unicode code point Line Feed U+000A */
+CR           = /* the Unicode code point Carriage Return U+000D */
+NL           = LF | (CR [LF])
+BlockComment = "/*" { BlockComment | <any character> } "*/"
+LineComment  = "//" { <any character except NL> }
+WS           = <one of the following characters: SPACE U+0020, TAB U+0009, Form Feed U+000C>
+Hidden       = BlockComment | LineComment | WS
 ```
 
 #### 1.2.2 Keywords and operators

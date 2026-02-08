@@ -1,5 +1,5 @@
 #[salsa::tracked(debug)]
-pub struct Cake<'db> {
+pub struct AliceFile<'db> {
     #[tracked]
     #[returns(ref)]
     pub stmts: Vec<Stmt<'db>>,

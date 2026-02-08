@@ -8,7 +8,6 @@ ac_diag = { path = "compiler/ac_diag" }
 ac_error = { path = "compiler/ac_error" }
 ac_interface = { path = "compiler/ac_interface" }
 ac_ir = { path = "compiler/ac_ir" }
-ac_lexer = { path = "compiler/ac_lexer" }
 ac_parser = { path = "compiler/ac_parser" }
 ac_query = { path = "compiler/ac_query" }
 anyhow = { version = "1" }

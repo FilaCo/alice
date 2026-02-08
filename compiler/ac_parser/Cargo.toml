@@ -7,5 +7,5 @@ edition = "2024"
 ac_db.workspace = true
 ac_diag.workspace = true
 ac_ir.workspace = true
-ac_lexer.workspace = true
+memchr.workspace = true
 salsa.workspace = true

@@ -1,30 +1,32 @@
-mod token;
+use ac_db::db::AcDbTrait;
+use ac_ir::{
+    source::Span,
+    syntax::token::{Token, TokenKind},
+};
 
-pub use token::*;
+use crate::lexer::cursor::Cursor;
+use TokenKind::*;
 
-use ac_lexer::Cursor;
+mod cursor;
 
-pub struct Lexer<'src> {
-    cursor: Cursor<'src>,
-    pos: u32,
-    token: Token<'src>,
+pub struct Lexer<'db> {
+    db: &'db dyn AcDbTrait,
+    cursor: Cursor<'db>,
+    token: Token<'db>,
+    pos: usize,
 }
 
-impl<'src> Lexer<'src> {
-    pub fn new(input: &'src str) -> Self {
+impl<'db> Lexer<'db> {
+    pub fn new(db: &'db dyn AcDbTrait, input: &'db str) -> Self {
         Self {
+            db,
             cursor: Cursor::new(input),
+            token: Token::dummy(db),
             pos: 0,
-            token: Token::dummy(),
         }
     }
 
-    pub fn cook(&mut self) -> Token<'src> {
-        todo!()
-    }
-
-    fn next_token_from_cursor(&mut self) -> Token<'src> {
-        let mut token = self.cursor.next_token();
+    pub fn cook(&mut self) -> Token<'db> {
         todo!()
     }
 }

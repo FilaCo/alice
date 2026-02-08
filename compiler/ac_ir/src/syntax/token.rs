@@ -1,36 +1,39 @@
-use crate::syntax::value::Symbol;
+use salsa::Database;
+
+use crate::{source::Span, syntax::Symbol};
 
 #[salsa::tracked(debug)]
 pub struct Token<'db> {
     pub kind: TokenKind<'db>,
-    // pub span: Span<'db>,
+    pub span: Span<'db>,
+}
+
+impl<'db> Token<'db> {
+    pub fn dummy(db: &'db dyn Database) -> Self {
+        Token::new(db, TokenKind::Quest, Span::dummy(db))
+    }
+
+    pub fn eof(db: &'db dyn Database, span: Span<'db>) -> Self {
+        Token::new(db, TokenKind::Eof, span)
+    }
+
+    pub fn glue(&self, other: &Token<'db>, db: &'db dyn Database) -> Option<Token<'db>> {
+        None
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, salsa::Update)]
 pub enum TokenKind<'db> {
-    /* Expression-operator symbols */
+    /// `NL = LF | (CR [LF])`
+    NL,
     /// `=`
     Eq,
     /// `<`
     Lt,
-    /// `<=`
-    Le,
-    /// `==`
-    EqEq,
-    /// `!=`
-    Ne,
-    /// `>=`
-    Ge,
     /// `>`
     Gt,
-    /// `&&`
-    AndAnd,
-    /// `||`
-    OrOr,
     /// `!`
-    Bang,
-    /// `~`
-    Tilde,
+    Excl,
     /// `+`
     Plus,
     /// `-`
@@ -39,71 +42,19 @@ pub enum TokenKind<'db> {
     Star,
     /// `/`
     Slash,
-    /// `%`
-    Percent,
-    /// `^`
-    Caret,
-    /// `&`
-    And,
-    /// `|`
-    Or,
-    /// `<<`
-    Shl,
-    /// `>>`
-    Shr,
-    /// `+=`
-    PlusEq,
-    /// `-=`
-    MinusEq,
-    /// `*=`
-    StarEq,
-    /// `/=`
-    SlashEq,
-    /// `%=`
-    PercentEq,
-    /// `^=`
-    CaretEq,
-    /// `&=`
-    AndEq,
-    /// `|=`
-    OrEq,
-    /// `<<=`
-    ShlEq,
-    /// `>>=`
-    ShrEq,
-
-    /* Structural symbols */
-    /// `@`
-    At,
     /// `.`
     Dot,
-    /// `..`
-    DotDot,
-    /// `...`
-    DotDotDot,
-    /// `..=`
-    DotDotEq,
     /// `,`
     Comma,
     /// `;`
     Semi,
     /// `:`
     Colon,
-    /// `::`
-    PathSep,
-    /// `->`
-    RArrow,
-    /// `<-`
-    LArrow,
-    /// `=>`
-    FatArrow,
     /// `#`
     Hash,
-    /// `$`
-    Dollar,
     /// `?`
-    Question,
-    /// `(`
+    Quest,
+    /// `(``
     LParen,
     /// `)`
     RParen,
@@ -115,6 +66,17 @@ pub enum TokenKind<'db> {
     LBracket,
     /// `]`
     RBracket,
+
+    /// `==`
+    EqEq,
+    /// `!=`
+    Ne,
+    /// `<=`
+    Le,
+    /// `>=`
+    Ge,
+    /// `::`
+    ColonColon,
 
     /// An identifier or keyword, e.g. `ident` or `prop`.
     Ident { sym: Symbol<'db> },
@@ -131,10 +93,16 @@ pub enum TokenKind<'db> {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, salsa::Update)]
 pub enum LiteralKind {
-    Int,
-    Float,
+    Int { base: Base },
+    Float { base: Base },
     Rune { terminated: bool },
     Str { terminated: bool },
 }
 
-pub enum Base {}
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, salsa::Update)]
+pub enum Base {
+    Bin = 2,
+    Oct = 8,
+    Dec = 10,
+    Hex = 16,
+}
