@@ -1,34 +1,38 @@
+use crate::source::Span;
+
 #[salsa::tracked(debug)]
 pub struct AliceFile<'db> {
     #[tracked]
     #[returns(ref)]
-    pub stmts: Vec<Stmt<'db>>,
+    pub top_level_objs: Vec<TopLevelObject<'db>>,
 }
 
 #[salsa::tracked(debug)]
-pub struct Stmt<'db> {
+pub struct TopLevelObject<'db> {
     #[tracked]
-    pub kind: StmtKind<'db>,
-    // #[tracked]
-    // pub span: Span<'db>,
+    pub kind: TopLevelObjectKind<'db>,
+    #[tracked]
+    pub span: Span<'db>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, salsa::Update)]
-pub enum StmtKind<'db> {
-    Def(Def<'db>),
-    Expr(Expr<'db>),
-    Include,
+pub enum TopLevelObjectKind<'db> {
+    TopLevelStmt(TopLevelStmt<'db>),
+    TopLevelDecl(TopLevelDecl<'db>),
 }
 
 #[salsa::tracked(debug)]
-pub struct Def<'db> {}
+pub struct TopLevelStmt<'db> {}
+
+#[salsa::tracked(debug)]
+pub struct TopLevelDecl<'db> {}
 
 #[salsa::tracked(debug)]
 pub struct Expr<'db> {
     #[tracked]
     pub kind: ExprKind<'db>,
-    // #[tracked]
-    // pub span: Span<'db>,
+    #[tracked]
+    pub span: Span<'db>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, salsa::Update)]

@@ -137,7 +137,7 @@ The grammar below replaces some lexical grammar rules with explicit literals (wh
 ```ebnf
 alice_file = { top_level_object } Eof
 
-top_level_object = (top_level_stmt | top_level_decl) [semis]
+top_level_object = (top_level_stmt | top_level_decl) semis
 
 top_level_stmt   = using_namespace | query_stmt
 top_level_decl   = namespace_decl | prop_decl
@@ -151,7 +151,7 @@ namespace_decl = "namespace" ident namespace_body
 namespace_body = "{" { top_level_object } "}"
 
 prop_decl  = "prop" ident [prop_body]
-prop_body  = "{" field_decl { [semis] field_decl } "}"
+prop_body  = "{" field_decl { semis field_decl } "}"
 field_decl = Ident ":" ident_path
 
 ident_path = ["::"] Ident { "::" Ident }
